@@ -144,11 +144,20 @@ def print_with_color(string, color_code=1):
     print(f"\x1b[3{color_code}m{string}\x1b[m", end="")
 
 
+def make_file_id(file_name):
+    year = file_name.split()[1]
+    folio_nbr = re.sub("\..*$", "", file_name.split()[-1])
+    district = re.sub("(Buiten|distr.|Stad)", "", "".join(file_name.split()[2: -1]))
+    if district == "":
+        district = "1e"
+    return "-".join([year, district, folio_nbr])
+
+
 def read_files(data_dir):
     texts, metadata, textregions = ({}, {}, {})
     for file_name in sorted(os.listdir(data_dir)):
         if re.search("\.xml$", file_name):
-            file_id = int(re.sub("\D", "", file_name))
+            file_id = make_file_id(file_name)
             try:
                 texts[file_id], metadata[file_id], textregions[file_id] = get_text_from_file(os.path.join(data_dir, file_name))
             except:
