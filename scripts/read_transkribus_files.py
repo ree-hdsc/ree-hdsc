@@ -145,12 +145,15 @@ def print_with_color(string, color_code=1):
 
 
 def make_file_id(file_name):
-    year = file_name.split()[1]
-    folio_nbr = re.sub("\..*$", "", file_name.split()[-1])
-    district = re.sub("(Buiten|distr.|Stad)", "", "".join(file_name.split()[2: -1]))
-    if district == "":
-        district = "1e"
-    return "-".join([year, district, folio_nbr])
+    try:
+        year = file_name.split()[1]
+        folio_nbr = re.sub("\..*$", "", file_name.split()[-1])
+        district = re.sub("(Buiten|distr.|Stad)", "", "".join(file_name.split()[2: -1]))
+        if district == "":
+            district = "1e"
+        return "-".join([year, district, folio_nbr])
+    except:
+        return file_name
 
 
 def read_files(data_dir):
