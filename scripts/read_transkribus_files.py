@@ -29,10 +29,13 @@ def process_custom_attrib(custom_line):
     while fields:
         key = fields.pop(0)
         if not fields:
-            data[key] = {}
+            data[key] = []
         else:
             value_string = string_to_dict(get_value_string(fields))
-            data[key] = value_string
+            if key in data:
+                data[key].append(value_string)
+            else:
+                data[key] = [value_string]
     return data
 
 
@@ -46,9 +49,14 @@ def add_length_to_offset(metadata_value, text_length):
 def expand_metadata(metadata_base, metadata_new, text_length):
     for key in metadata_new:
         if key in metadata_base:
-            metadata_base[key].append(add_length_to_offset(metadata_new[key], text_length))
+            for value in metadata_new[key]:
+                metadata_base[key].append(add_length_to_offset(value, text_length))
+            if key == "sex":
+                print(f"expand_metadata: known key: {key}: {metadata_base[key]}")
         else:
-            metadata_base[key] = [add_length_to_offset(metadata_new[key], text_length)]
+            metadata_base[key] = []
+            for value in metadata_new[key]:
+                metadata_base[key].append(add_length_to_offset(value, text_length))
 
 
 def process_textline_attrib(attribs):
@@ -159,6 +167,7 @@ def make_file_id(file_name):
 def read_files(data_dir):
     texts, metadata, textregions = ({}, {}, {})
     for file_name in sorted(os.listdir(data_dir)):
+        print(f"read_files: {file_name}")
         if re.search("\.xml$", file_name):
             file_id = make_file_id(file_name)
             try:
