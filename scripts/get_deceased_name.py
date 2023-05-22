@@ -1,6 +1,6 @@
 import re
 import transformers
-
+from . import utils
 
 # Tested models (initial number indicates monthly downloads):
 # (345) wietsedv/bert-base-dutch-cased-finetuned-conll2002-ner (several false positives)
@@ -80,14 +80,6 @@ def cleanup(text_in):
     return re.sub("[,.]", "", text_out.lower())
 
 
-def find_text_patterns(query, text):
-    positions = []
-    pattern = re.compile(query)
-    for m in pattern.finditer(text.lower()):
-        positions.append({"start": m.start(), "end": m.end()})
-    return positions
-
-
 def compare_names(results, metadata):
     if len(results[0]) == 0 or results[0][0] == "":
         return True
@@ -128,12 +120,12 @@ def print_name_correct(name_is_correct):
 
 
 def stillborn_count(text):
-    return len(find_text_patterns("levenloos", text))
+    return len(utils.find_text_patterns("levenloos", text))
 
 
 def get_name_of_deceased_from_entities(text, entities):
     deceased = []
-    deceased_positions = find_text_patterns("overleden is:?,?", text) + find_text_patterns("is overleden:?,?", text)
+    deceased_positions = utils.find_text_patterns("overleden is:?,?", text) + utils.find_text_patterns("is overleden:?,?", text)
     for position in deceased_positions:
         name_deceased = ""
         for entity in entities:

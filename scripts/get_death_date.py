@@ -168,20 +168,11 @@ def number_parser(text):
     return 0, 0
 
 
-def find_text_patterns(query, text):
-    """ find a text pattern in text """
-    positions = []
-    pattern = re.compile(query)
-    for m in pattern.finditer(text.lower()):
-        positions.append({"start": m.start(), "end": m.end()})
-    return positions
-
-
 def get_dates(text, pattern):
     """ get dates from a text using the provided text pattern """
     dates = []
     day = ""
-    positions = find_text_patterns(pattern, text)
+    positions = utils.find_text_patterns(pattern, text)
     for position in positions:
         day, token_length_day = get_date_day(position["end"], text)
         month, token_length_month = get_date_month(position["end"] + token_length_day, text)

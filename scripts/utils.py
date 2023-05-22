@@ -11,3 +11,12 @@ def cleanup(text_in):
 def print_with_color(string, color_code=1):
     """ print a text with a color: default red; requires explicit newline """
     print(f"\x1b[3{color_code}m{string}\x1b[m", end="")
+
+
+def find_text_patterns(query, text):
+    """ find a text pattern in text """
+    positions = []
+    pattern = re.compile(query.lower())
+    for m in pattern.finditer(text.lower()):
+        positions.append({"start": m.start(), "end": m.end()})
+    return positions
