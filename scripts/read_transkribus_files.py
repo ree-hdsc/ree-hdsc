@@ -51,8 +51,6 @@ def expand_metadata(metadata_base, metadata_new, text_length):
         if key in metadata_base:
             for value in metadata_new[key]:
                 metadata_base[key].append(add_length_to_offset(value, text_length))
-            if key == "sex":
-                print(f"expand_metadata: known key: {key}: {metadata_base[key]}")
         else:
             metadata_base[key] = []
             for value in metadata_new[key]:
@@ -167,7 +165,6 @@ def make_file_id(file_name):
 def read_files(data_dir):
     texts, metadata, textregions = ({}, {}, {})
     for file_name in sorted(os.listdir(data_dir)):
-        print(f"read_files: {file_name}")
         if re.search("\.xml$", file_name):
             file_id = make_file_id(file_name)
             try:
