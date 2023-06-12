@@ -4,24 +4,32 @@ PRINTED_TEXT[1831] = [
     "No",
     "Verbeteringen",
     "Heden den",
+    "des jaars een duizend acht honderd",
     "Compareerden voor mij",
-    "van den Burgerlijken stand op dit eiland.",
+    "ambtenaar",
+    "van den Burgerlijken stand op dit eiland",
     "De personen van",
-    "van competenten ouderdom en alhier woonachtig.",
+    "van competenten ouderdom en alhier woonachtig",
     "Dewelke aangifte hebben gedaan dat",
     "op den",
+    "des jaars een duizend acht honderd",
     "te",
     "ure des",
-    "overleden is:",
+    "overleden is",
     "Oud",
+    "naar gissing",
     "Geboren",
-    "op den"
-    "zijnde"
+    "op den",
+    "des jaars een duizend acht honderd",
+    "des jaars een duizend zeven honderd",
+    "zijnde",
     "laatstelijk gewoond",
     "En is deze behoorlijk geteekend",
-    "op Curacao dato utsupra.",
+    "na voorlezing",
+    "op Curaçao dato utsupra",
+    "niet te kunnen schrijven",
     "F",
-    "Aanteekeningen"
+    "Aanteekeningen",
 ]
 
 PRINTED_TEXT[1842] = [
@@ -29,22 +37,23 @@ PRINTED_TEXT[1842] = [
     "Verbeteringen",
     "Heden den",
     "Compareerden voor mij",
-    "van den Burgerlijken stand op dit eiland.",
+    "van den Burgerlijken stand op dit eiland",
     "De personen van",
-    "van competenten ouderdom en alhier woonachtig.",
+    "van competenten ouderdom en alhier woonachtig",
     "Dewelke aangifte hebben gedaan dat",
     "op den",
     "te",
     "ure des",
-    "overleden is:",
+    "overleden is",
     "Oud",
+    "naar gissing",
     "Geboren",
     "op den",
     "laatstelijk gewoond",
     "En is deze behoorlijk geteekend",
-    "op Curacao dato utsupra.",
+    "op Curaçao dato utsupra",
     "F",
-    "Aanteekeningen"
+    "Aanteekeningen",
 ]
 
 PRINTED_TEXT[1842] = [
@@ -54,22 +63,22 @@ PRINTED_TEXT[1842] = [
     "des Jaars",
     "Een duizend acht honderd en",
     "Compareerden voor mij",
-    "van den Burgerlijken stand op dit eiland.",
+    "van den Burgerlijken stand op dit eiland",
     "De personen van",
     "van competenten ouderdom en alhier woonachtig, dewelke aangifte hebben gedaan dat",
     "op den",
     "des Jaars Een duizend acht honderd en",
     "te",
     "ure des",
-    "overleden is:",
+    "overleden is",
     "Oud",
     "Geboren",
     "op den",
     "laatstelijk gewoond",
     "En is deze behoorlijk geteekend",
-    "op Curacao dato utsupra.",
+    "op Curaçao dato utsupra",
     "F",
-    "Aanteekeningen"
+    "Aanteekeningen",
 ]
 
 PRINTED_TEXT[1869] = [
@@ -80,7 +89,7 @@ PRINTED_TEXT[1869] = [
     "Een duizend acht honderd en",
     "Compareerden ten burele voor mij",
     "ambtenaar van den Burgerlijken stand in het",
-    "district dezes eilands.",
+    "district dezes eilands",
     "De personen van",
     "van beroep",
     "oud",
@@ -88,13 +97,13 @@ PRINTED_TEXT[1869] = [
     "en",
     "van beroep",
     "oud",
-    "wonende"
+    "wonende",
     "dewelke aangifte hebben gedaan",
     "op den",
     "des Jaars Een duizend acht honderd en",
     "te",
     "ure des",
-    "overleden is:",
+    "overleden is",
     "in den ouderdom van",
     "jaren",
     "van",
@@ -103,7 +112,7 @@ PRINTED_TEXT[1869] = [
     "en mij",
     "ambtenaar",
     "voormeld is ondertekendteekend",
-    "op Curacao dato utsupra.",
+    "op Curaçao dato utsupra",
 ]
 
 PRINTED_TEXT[1873] = [
@@ -114,7 +123,7 @@ PRINTED_TEXT[1873] = [
     "Een duizend acht honderd en",
     "Compareerden ten burele voor mij",
     "ambtenaar van den Burgerlijken stand in het",
-    "district dezes eilands.",
+    "district dezes eilands",
     "De personen van",
     "van beroep",
     "oud",
@@ -122,13 +131,13 @@ PRINTED_TEXT[1873] = [
     "en",
     "van beroep",
     "oud",
-    "wonende"
+    "wonende",
     "dewelke aangifte hebben gedaan",
     "op den",
     "des Jaars Een duizend acht honderd en",
     "te",
     "ure des",
-    "overleden is:",
+    "overleden is",
     "in den ouderdom van",
     "jaren",
     "van",
@@ -136,7 +145,7 @@ PRINTED_TEXT[1873] = [
     "En is hiervan akte opgemaakt, welke na voorlezing door de",
     "en mij ambtenaar voormeld",
     "is onderteekend",
-    "op Curacao dato utsupra.",
+    "op Curaçao dato utsupra",
 ]
 
 PRINTED_TEXT[1885] = [
@@ -147,7 +156,7 @@ PRINTED_TEXT[1885] = [
     "Een duizend acht honderd en",
     "Compareerden ten burele voor mij",
     "ambtenaar van den Burgerlijken stand in het",
-    "district dezes eilands.",
+    "district dezes eilands",
     "De personen van",
     "van beroep",
     "oud",
@@ -155,13 +164,13 @@ PRINTED_TEXT[1885] = [
     "en",
     "van beroep",
     "oud",
-    "wonende"
+    "wonende",
     "dewelke aangifte hebben gedaan dat in het",
     "district alhier op den",
     "des Jaars Een duizend acht honderd en",
     "te",
     "ure des",
-    "overleden is:",
+    "overleden is",
     "in den ouderdom van",
     "jaren,",
     "van",
@@ -169,7 +178,7 @@ PRINTED_TEXT[1885] = [
     "En is hiervan akte opgemaakt, welke na voorlezing door de",
     "en mij ambtenaar voormeld",
     "is ondertekeend",
-    "op Curacao dato utsupra.",
+    "op Curaçao dato utsupra",
 ]
 
 
@@ -182,7 +191,7 @@ PRINTED_TEXT[1892] = [
     "en negentig",
     "Compareerden ten burele voor mij",
     "ambtenaar van den Burgerlijken stand in het",
-    "district dezes eilands.",
+    "district dezes eilands",
     "De personen van",
     "van beroep",
     "oud",
@@ -190,7 +199,7 @@ PRINTED_TEXT[1892] = [
     "wonende alhier",
     "en",
     "van beroep",
-    "oud"
+    "oud",
     "jaren,",
     "wonende alhier",
     "dewelke aangifte hebben gedaan dat in het",
@@ -199,7 +208,7 @@ PRINTED_TEXT[1892] = [
     "en negentig",
     "te",
     "ure des",
-    "overleden is:",
+    "overleden is",
     "in den ouderdom van",
     "jaren,",
     "van",
@@ -207,7 +216,7 @@ PRINTED_TEXT[1892] = [
     "En is hiervan akte opgemaakt, welke na voorlezing door de",
     "en mij ambtenaar voor-",
     "meld is onderteekend",
-    "op Curacao dato utsupra.",
+    "op Curaçao dato utsupra",
 ]
 
 PRINTED_TEXT[1894] = [
@@ -219,7 +228,7 @@ PRINTED_TEXT[1894] = [
     "en negentig",
     "compareerden ten burele voor mij",
     "ambtenaar van den Burgerlijken stand in het",
-    "district dezes eilands.",
+    "district dezes eilands",
     "De personen van",
     "van beroep",
     "oud",
@@ -227,7 +236,7 @@ PRINTED_TEXT[1894] = [
     "wonende alhier",
     "en",
     "van beroep",
-    "oud"
+    "oud",
     "jaren,",
     "wonende alhier",
     "dewelke aangifte hebben gedaan dat in het",
@@ -236,7 +245,7 @@ PRINTED_TEXT[1894] = [
     "en negentig",
     "te",
     "ure des",
-    "overleden is:",
+    "overleden is",
     "in den ouderdom van",
     "jaren,",
     "van",
@@ -244,7 +253,7 @@ PRINTED_TEXT[1894] = [
     "En is hiervan akte opgemaakt, welke na voorlezing door de",
     "en mij ambtenaar voor-",
     "meld is onderteekend",
-    "op Curacao dato utsupra.",
+    "op Curaçao dato utsupra",
 ]
 
 PRINTED_TEXT[1895] = [
@@ -256,7 +265,7 @@ PRINTED_TEXT[1895] = [
     "en negentig",
     "compareerden ten burele voor mij",
     "ambtenaar van den Burgerlijken stand in het",
-    "district dezes eilands.",
+    "district dezes eilands",
     "De personen van",
     "van beroep",
     "oud",
@@ -264,7 +273,7 @@ PRINTED_TEXT[1895] = [
     "wonende alhier",
     "en",
     "van beroep",
-    "oud"
+    "oud",
     "jaren,",
     "wonende alhier",
     "dewelke aangifte hebben gedaan dat in het",
@@ -273,7 +282,7 @@ PRINTED_TEXT[1895] = [
     "en negentig",
     "te",
     "ure des",
-    "overleden is:",
+    "overleden is",
     "in den ouderdom van",
     "jaren,",
     "van",
@@ -281,7 +290,7 @@ PRINTED_TEXT[1895] = [
     "En is hiervan akte opgemaakt, welke na voorlezing door de",
     "en mij ambtenaar voor-",
     "meld is onderteekend",
-    "op Curacao dato utsupra.",
+    "op Curaçao dato utsupra",
 ]
 
 PRINTED_TEXT[1900] = [
@@ -292,7 +301,7 @@ PRINTED_TEXT[1900] = [
     "Een duizend negen honderd",
     "compareerde voor mij",
     "ambtenaar van den Burgerlijken stand in het",
-    "district dezes eilands ten mijnen bureele:",
+    "district dezes eilands ten mijnen bureele",
     "De personen van",
     "van beroep",
     "oud",
@@ -300,7 +309,7 @@ PRINTED_TEXT[1900] = [
     "wonende alhier",
     "en",
     "van beroep",
-    "oud"
+    "oud",
     "jaren,",
     "wonende alhier",
     "dewelke aangifte hebben gedaan dat in het",
@@ -308,14 +317,14 @@ PRINTED_TEXT[1900] = [
     "des Jaars Een duizend negen honderd",
     "te",
     "ure des",
-    "overleden is:",
+    "overleden is",
     "in den ouderdom van",
     "jaren,",
     "van",
     "zijnde geboren",
     "En is hiervan acte opgemaakt, welke na voorlezing door de",
     "en mij ambtenaar voor-",
-    "meld is onderteekend op Curacao dato utsupra.",
+    "meld is onderteekend op Curaçao dato utsupra",
 ]
 
 PRINTED_TEXT[1907] = [
@@ -326,7 +335,7 @@ PRINTED_TEXT[1907] = [
     "Een duizend negen honderd",
     "compareerden",
     "voor mij ambtenaar van den Burgerlijken stand in het",
-    "district dezes eilands ten mijnen bureele:",
+    "district dezes eilands ten mijnen bureele",
     "De personen van",
     "van beroep",
     "oud",
@@ -334,7 +343,7 @@ PRINTED_TEXT[1907] = [
     "wonende alhier",
     "en",
     "van beroep",
-    "oud"
+    "oud",
     "jaren,",
     "wonende alhier",
     "dewelke aangifte hebben gedaan dat in het",
@@ -342,14 +351,14 @@ PRINTED_TEXT[1907] = [
     "des Jaars Een duizend negen honderd",
     "te",
     "ure des",
-    "overleden is:",
+    "overleden is",
     "in den ouderdom van",
     "jaren,",
     "van",
     "zijnde geboren",
     "En is hiervan acte opgemaakt, welke na voorlezing door de",
     "en mij ambtenaar voormeld",
-    "is onderteekend op Curacao dato utsupra.",
+    "is onderteekend op Curaçao dato utsupra",
 ]
 
 PRINTED_TEXT[1909] = [
@@ -361,7 +370,7 @@ PRINTED_TEXT[1909] = [
     "compareerden",
     "voor mij",
     "ambtenaar van den Burgerlijken stand in het",
-    "district dezes eilands ten mijnen bureele:",
+    "district dezes eilands ten mijnen bureele",
     "De personen van",
     "van beroep",
     "oud",
@@ -369,7 +378,7 @@ PRINTED_TEXT[1909] = [
     "wonende alhier",
     "en",
     "van beroep",
-    "oud"
+    "oud",
     "jaren,",
     "wonende alhier",
     "dewelke aangifte hebben gedaan dat in het",
@@ -377,14 +386,14 @@ PRINTED_TEXT[1909] = [
     "des Jaars Een duizend negen honderd",
     "te",
     "ure des",
-    "overleden is:",
+    "overleden is",
     "in den ouderdom van",
     "jaren,",
     "van",
     "zijnde geboren",
     "En is hiervan acte opgemaakt, welke na voorlezing door de",
     "en mij ambtenaar",
-    "voormeld is onderteekend op Curacao dato utsupra.",
+    "voormeld is onderteekend op Curaçao dato utsupra",
 ]
 
 PRINTED_TEXT[1925] = [
@@ -395,7 +404,7 @@ PRINTED_TEXT[1925] = [
     "Een duizend negen honderd",
     "compareerden",
     "voor mij hulpambtenaar van den Burgerlijken stand in het",
-    "district dezes eilands ten mijnen bureele:",
+    "district dezes eilands ten mijnen bureele",
     "De personen van",
     "van beroep",
     "oud",
@@ -404,7 +413,7 @@ PRINTED_TEXT[1925] = [
     "district",
     "en",
     "van beroep",
-    "oud"
+    "oud",
     "jaren,",
     "wonende alhier in het",
     "district",
@@ -413,14 +422,14 @@ PRINTED_TEXT[1925] = [
     "des Jaars Een duizend negen honderd",
     "te",
     "ure des",
-    "overleden is:",
+    "overleden is",
     "in den ouderdom van",
     "jaren,",
     "van",
     "zijnde geboren",
     "En is hiervan acte opgemaakt, welke, na voorlezing door de",
     "en mij hulpambtenaar",
-    "voormeld is onderteekend op Curacao dato utsupra.",
+    "voormeld is onderteekend op Curaçao dato utsupra",
 ]
 
 PRINTED_TEXT[1935] = [
@@ -430,20 +439,20 @@ PRINTED_TEXT[1935] = [
     "negentienhonderd",
     "verscheen voor mij, hulpambtenaar van den Burgerlijken Stand",
     "in het",
-    "district op Curaçao:",
+    "district op Curaçao",
     "oud",
     "jaren, van beroep",
     "wonende in het",
     "district alhier die op grond van eigen wetenschap verklaarde dat in het",
-    "dis-"
+    "dis-",
     "trict alhier op den",
     "negentienhonderd",
     "ten",
     "ure des",
     "middags",
-    "overleden is:",
+    "overleden is",
     "in den ouderdom van",
-    "Waarvan akte, welke is voorgelezen.",
+    "Waarvan akte, welke is voorgelezen",
 ]
 
 PRINTED_TEXT[1937] = [
@@ -453,7 +462,7 @@ PRINTED_TEXT[1937] = [
     "negentienhonderd",
     "verscheen voor mij, hulpambtenaar van den Burgerlijken Stand",
     "in het",
-    "district op Curaçao:",
+    "district op Curaçao",
     "oud",
     "jaren, van beroep",
     "wonende in het",
@@ -463,9 +472,9 @@ PRINTED_TEXT[1937] = [
     "ten",
     "ure",
     "des",
-    "middags overleden is:",
+    "middags overleden is",
     "in den ouderdom van",
-    "Waarvan akte, welke is voorgelezen.",
+    "Waarvan akte, welke is voorgelezen",
 ]
 
 PRINTED_TEXT[1938] = [
@@ -487,13 +496,13 @@ PRINTED_TEXT[1938] = [
     "negentienhonderd",
     "ten",
     "ure des",
-    "middags overleden is:",
+    "middags overleden is",
     "in den ouderdom van",
-    "Waarvan akte, welke is voorgelezen.",
+    "Waarvan akte, welke is voorgelezen",
 ]
 
 PRINTED_TEXT[1939] = [
-    "Nr.",
+    "Nr",
     "1939",
     "Blad nummer",
     "Heden",
@@ -506,7 +515,7 @@ PRINTED_TEXT[1939] = [
     "dezes jaars",
     "middags te",
     "uur, alhier is overleden",
-    "Waarvan akte, welke is voorgelezen.",
+    "Waarvan akte, welke is voorgelezen",
 ]
 
 #### 1940 and late: to be checked
