@@ -162,6 +162,13 @@ def make_file_id(file_name):
         return file_name
 
 
+def make_file_name(text_id, data_dir):
+    for file_name in os.listdir(data_dir):
+        if make_file_id(file_name) == text_id:
+            return file_name
+    return f"NOT_FOUND_{text_id}.xml"
+
+
 def read_files(data_dir):
     texts, metadata, textregions = ({}, {}, {})
     for file_name in sorted(os.listdir(data_dir)):
