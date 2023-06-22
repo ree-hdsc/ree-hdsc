@@ -1,4 +1,5 @@
 import re
+from spacy import displacy
 
 
 def cleanup(text_in):
@@ -20,3 +21,11 @@ def find_text_patterns(query, text):
     for m in pattern.finditer(text.lower()):
         positions.append({"start": m.start(), "end": m.end()})
     return positions
+
+
+def render_text(text, entities):
+    displacy.render({ "text": re.sub("\\n", " ", text),
+                      "ents": entities },
+                    options = { "colors": { "fuzzy_match": "yellow"} }, 
+                    style = "ent", 
+                    manual = True)
