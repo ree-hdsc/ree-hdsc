@@ -1,13 +1,15 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
+BASE_DIR = "/home/erikt/projects/ree-hdsc/ree-hdsc/website/"
+PRIVATE_DIR = f"{BASE_DIR}private"
+
 import sys
-sys.stderr = open("/home/erikt/etc/errorlog", "a")
+sys.stderr = open(f"{BASE_DIR}etc/errorlog", "a")
 
 import os
-BASE_DIR = "/home/erikt/projects/ree-hdsc/private/"
-os.chdir(BASE_DIR)
+os.chdir(PRIVATE_DIR)
 
-os.environ["PYTHONPATH"] = BASE_DIR
-sys.path.append(BASE_DIR)
+os.environ["PYTHONPATH"] = PRIVATE_DIR
+sys.path.append(PRIVATE_DIR)
 
 from wsgiref.handlers import CGIHandler
 from annotate import app
