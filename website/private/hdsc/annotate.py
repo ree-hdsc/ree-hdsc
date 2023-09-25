@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 
 import numpy
 import os
@@ -7,14 +7,11 @@ import regex
 import sys
 from PIL import Image, ImageDraw
 import xml.etree.ElementTree as ET
-sys.path.append(os.getcwd() + '/../../../ree-hdsc')
-from scripts import read_transkribus_files
-from IPython.display import clear_output
 from flask import Flask, request
 
 
-CORPUS_DIR = "../../../data/Overlijden/"
-COORDINATES_DIR = CORPUS_DIR + "x-samples/three-columns-100/corrected/"
+CORPUS_DIR = "data/"
+COORDINATES_DIR = CORPUS_DIR + "page/"
 
 TRANSPARENT_BACKGROUND = 255
 COVERED_BACKGROUND = 128
@@ -50,7 +47,7 @@ def make_image_file_name(coordinates_file_name):
     file_name_parts = coordinates_file_name.split()
     year_dir = " ".join(file_name_parts[:2])
     district_dir = regex.sub("\.$", "", " ".join(file_name_parts[:-1]))
-    return os.path.join(CORPUS_DIR, year_dir, district_dir, regex.sub("xml$", "JPG", coordinates_file_name))
+    return os.path.join(CORPUS_DIR, regex.sub("xml$", "JPG", coordinates_file_name))
 
 
 def get_coordinates_from_line(line):
@@ -113,11 +110,8 @@ def get_next_ids(polygons, text_line_id, coords_id):
 
 
 def read_processed_files():
-    #try:
-    data = pd.read_csv("../etc/logfile")
+    data = pd.read_csv("etc/logfile")
     return list(data.iloc[:,0])
-    #except Exception:
-    #    return []
 
 
 def select_next_file(coordinates_file_list, image_file_list):
@@ -132,7 +126,7 @@ def select_next_file(coordinates_file_list, image_file_list):
 
 def get_deceased_name(coordinates_file_name):
     short_file_name = os.path.splitext(os.path.basename(coordinates_file_name))[0]
-    data = pd.read_csv("../../../data/Overlijden/x-misc/Overlijden 1831-1950 JESSYv2-1831-1929.csv")
+    data = pd.read_csv(CORPUS_DIR + "Overlijdensmerged.csv", low_memory=False)
     data_selection = data.loc[data["Scans"] == short_file_name]
     if len(data_selection) == 0:
         return f"unknown name"
@@ -152,12 +146,12 @@ def get_deceased_name(coordinates_file_name):
 
 def remove_last_entry():
     lines = []
-    logfile = open("../etc/logfile", "r")
+    logfile = open("etc/logfile", "r")
     for line in logfile:
         lines.append(line.strip())
     logfile.close()
     lines.pop(-1)
-    logfile = open("../etc/logfile", "w")
+    logfile = open("etc/logfile", "w")
     for line in lines:
         print(line, file=logfile)
     logfile.close()
@@ -178,7 +172,7 @@ def check_data():
         coords_id = request.form["coords_id"]
         file_name = request.form["file_name"]
         deceased_name = request.form["deceased_name"]
-        logfile = open("../etc/logfile", "a")
+        logfile = open("etc/logfile", "a")
         print(f"{file_name},{action},{text_line_id},{coords_id},\"{deceased_name}\"", file=logfile)
         logfile.close()
         form_processed = True
@@ -216,25 +210,55 @@ def check_data():
     deceased_name_y_pos = int((rectangle[1] + rectangle[3])/2)
     image = Image.open(image_file_name)
     marked_image = mark_polygon(image, polygon)
-    marked_image.save("../htdocs/image.png")
+    marked_image.save("../../htdocs/hdsc/image.png")
 
                 #display(marked_image.crop(rectangle))
                 #results.append((image_file_name, text_line_id, evaluation))
 
-    web_text = f"""<form method="post">
+    web_text = f"""<html>
+<head><title>annotate></title></head>
+<body>
+<form method="post">
 <input type="hidden" name="text_line_id" value="{text_line_id}">
 <input type="hidden" name="coords_id" value="{coords_id}">
 <input type="hidden" name="file_name" value="{os.path.basename(coordinates_file_name)}">
 <input type="hidden" name="deceased_name" value="{deceased_name}">
 <input type="hidden" name="deceased_name_x_pos" value="{deceased_name_x_pos}">
 <input type="hidden" name="deceased_name_y_pos" value="{deceased_name_y_pos}">
+<button type="submit" name="back" value="back">back</button><br>
+<button type="submit" name="name" value="prev">previous</button>
+<button type="submit" name="name" value="next">next</button><br>
 <button type="submit" name="action" value="skip">skip</button>
-<button type="submit" name="back" value="back">back</button>
-<button type="submit" name="name" value="prev">prev</button>
-<button type="submit" name="name" value="next">next</button>
 <button type="submit" name="action" value="save">save</button>
 </form>"""
-    web_text += f"<p>{os.path.basename(coordinates_file_name)}: {deceased_name}"
-    web_text += f'<p><img src="/image.png" width="800"> {len(read_processed_files())}'
+    web_text += f"""
+{os.path.basename(coordinates_file_name)}:
+<table>
+<tr>
+<td>{deceased_name}<br><br><br><br><br><br><br>.</td>
+<td><img src="/hdsc/image.png" width="600"> {len(read_processed_files())}/{len(image_file_list)}</td>
+</td>
+</table>
+<p>
+<strong>Instructies</strong>
+<br>Klik op "save" als de naam links hetzelfde is als de opgelichte naam in het document
+<br>Klik op "previous" of "next" om het opgelichte deel te verschuiven
+<br>Klik op "skip":
+<ol>
+<li> als de naam links anders is dan de naam in het document
+<br> (ook als "van" of "de" op de verkeerde plaats staat)
+<li> als links staat "unknown name" of "levenloos"
+<li> als het document geen naam bevat
+<li> als het opgelichte deel meer of minder tekst bevat dan de naam links
+<li> bij twijfel: altijd op "skip" drukken
+</ol>
+Als je een fout maakt dan kan je met "back" terug naar het vorige document
+<br>
+Deze tool is niet geschikt voor tegelijkertijd gebruik door meerdere mensen
+<br>
+Stuur vragen en opmerkingen naar e.tjongkimsang@esciencecenter.nl
+</body>
+</html>
+"""
     return web_text
 

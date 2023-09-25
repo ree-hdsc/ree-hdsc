@@ -1,0 +1,18 @@
+#!/usr/bin/python3
+BASE_DIR = "/home/erikt/projects/ree-hdsc/ree-hdsc/website/private/hdsc/"
+
+import sys
+sys.stderr = open(f"{BASE_DIR}etc/errorlog", "a")
+
+import os
+os.chdir(BASE_DIR)
+
+os.environ["PYTHONPATH"] = BASE_DIR
+sys.path.append(BASE_DIR)
+
+from wsgiref.handlers import CGIHandler
+from annotate import app
+
+CGIHandler().run(app)
+
+sys.exit(0)
