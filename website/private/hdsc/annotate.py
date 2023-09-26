@@ -3,6 +3,7 @@
 import numpy
 import os
 import pandas as pd
+import random
 import regex
 import sys
 from PIL import Image, ImageDraw
@@ -60,16 +61,6 @@ def encloses_point(rectangle, point):
            rectangle[1] <= point[1] and rectangle[3] >= point[1])
 
 
-def get_file_names(coordinates_dir):
-    coordinates_file_list = []
-    image_file_list = []
-    for coordinates_file_name in sorted(os.listdir(coordinates_dir)):
-        image_file_name = make_image_file_name(coordinates_file_name)
-        image_file_list.append(image_file_name)
-        coordinates_file_list.append(os.path.join(coordinates_dir, coordinates_file_name))
-    return coordinates_file_list, image_file_list
-
-
 def get_text_polygons(coordinates_file_name):
     root = ET.parse(coordinates_file_name).getroot()
     polygons = []
@@ -114,14 +105,14 @@ def read_processed_files():
     return list(data.iloc[:,0])
 
 
-def select_next_file(coordinates_file_list, image_file_list):
+def select_next_file(coordinates_file_list):
     processed_files = read_processed_files()
-    while coordinates_file_list:
-        if os.path.basename(coordinates_file_list[0]) not in processed_files:
-            return coordinates_file_list[0], image_file_list[0]
-        coordinates_file_list.pop(0)
-        image_file_list.pop(0)
-    return "", ""
+    unprocessed_files = [ file_name for file_name in coordinates_file_list if file_name not in processed_files ]
+    if len(unprocessed_files) == 0:
+        return "", ""
+    coordinates_file_name = unprocessed_files[random.randint(0, len(unprocessed_files) - 1)]
+    image_file_name = make_image_file_name(coordinates_file_name)
+    return os.path.join(COORDINATES_DIR, coordinates_file_name), image_file_name
 
 
 def get_deceased_name(coordinates_file_name):
@@ -163,9 +154,7 @@ app = Flask(__name__)
 @app.route("/", methods=['GET', 'POST'])
 def check_data():
     form_processed = False
-    if "back" in request.form:
-        remove_last_entry()
-        form_processed = True
+    ip_addr = request.remote_addr
     if "action" in request.form:
         action = request.form["action"]
         text_line_id = request.form["text_line_id"]
@@ -173,17 +162,21 @@ def check_data():
         file_name = request.form["file_name"]
         deceased_name = request.form["deceased_name"]
         logfile = open("etc/logfile", "a")
-        print(f"{file_name},{action},{text_line_id},{coords_id},\"{deceased_name}\"", file=logfile)
+        print(f"{file_name},{action},{text_line_id},{coords_id},\"{deceased_name}\",{ip_addr}", file=logfile)
         logfile.close()
         form_processed = True
-    if "deceased_name_x_pos" in request.form:
-        deceased_name_x_pos = int(request.form["deceased_name_x_pos"])
-        deceased_name_y_pos = int(request.form["deceased_name_y_pos"])
+    if "file_name" in request.form:
+        previous_file_name = request.form["file_name"]
     else:
-        deceased_name_x_pos = DECEASED_NAME_X_POS
-        deceased_name_y_pos = DECEASED_NAME_Y_POS
-    coordinates_file_list, image_file_list = get_file_names(COORDINATES_DIR)
-    coordinates_file_name, image_file_name = select_next_file(coordinates_file_list, image_file_list)
+        previous_file_name = ""
+    #if "deceased_name_x_pos" in request.form:
+    #    deceased_name_x_pos = int(request.form["deceased_name_x_pos"])
+    #    deceased_name_y_pos = int(request.form["deceased_name_y_pos"])
+    #else:
+    deceased_name_x_pos = DECEASED_NAME_X_POS
+    deceased_name_y_pos = DECEASED_NAME_Y_POS
+    coordinates_file_list = sorted(os.listdir(COORDINATES_DIR))
+    coordinates_file_name, image_file_name = select_next_file(coordinates_file_list)
     deceased_name = get_deceased_name(coordinates_file_name)
     if coordinates_file_name == "":
         return "Done!"
@@ -197,8 +190,24 @@ def check_data():
         if not form_processed:
             if "name" in request.form and str(request.form["name"]) == "prev":
                 text_line_id, coords_id = get_previous_ids(polygons, text_line_id, coords_id)
+                coordinates_file_name = request.form["file_name"]
+                image_file_name = make_image_file_name(coordinates_file_name)
+                coordinates_file_name = os.path.join(COORDINATES_DIR, coordinates_file_name)
+                deceased_name = get_deceased_name(coordinates_file_name)
+                polygons = get_text_polygons(coordinates_file_name)
             if "name" in request.form and str(request.form["name"]) == "next":
                 text_line_id, coords_id = get_next_ids(polygons, text_line_id, coords_id)
+                coordinates_file_name = request.form["file_name"]
+                image_file_name = make_image_file_name(coordinates_file_name)
+                coordinates_file_name = os.path.join(COORDINATES_DIR, coordinates_file_name)
+                deceased_name = get_deceased_name(coordinates_file_name)
+                polygons = get_text_polygons(coordinates_file_name)
+            if "back" in request.form:
+                coordinates_file_name = request.form["previous_file_name"]
+                image_file_name = make_image_file_name(coordinates_file_name)
+                coordinates_file_name = os.path.join(COORDINATES_DIR, coordinates_file_name)
+                deceased_name = get_deceased_name(coordinates_file_name)
+                polygons = get_text_polygons(coordinates_file_name)
         # to be saved: text_line_list[text_line_id].attrib["id"] ?
         polygon = polygons[text_line_id][coords_id]
     else:
@@ -210,54 +219,55 @@ def check_data():
     deceased_name_y_pos = int((rectangle[1] + rectangle[3])/2)
     image = Image.open(image_file_name)
     marked_image = mark_polygon(image, polygon)
-    marked_image.save("../../htdocs/hdsc/image.png")
-
-                #display(marked_image.crop(rectangle))
-                #results.append((image_file_name, text_line_id, evaluation))
-
+    img_dir = f"../../htdocs/hdsc/{ip_addr}/"
+    if not os.path.isdir(img_dir):
+        os.mkdir(img_dir)
+    marked_image.save(f"{img_dir}/image.png")
     web_text = f"""<html>
-<head><title>annotate></title></head>
-<body>
-<form method="post">
-<input type="hidden" name="text_line_id" value="{text_line_id}">
-<input type="hidden" name="coords_id" value="{coords_id}">
-<input type="hidden" name="file_name" value="{os.path.basename(coordinates_file_name)}">
-<input type="hidden" name="deceased_name" value="{deceased_name}">
-<input type="hidden" name="deceased_name_x_pos" value="{deceased_name_x_pos}">
-<input type="hidden" name="deceased_name_y_pos" value="{deceased_name_y_pos}">
-<button type="submit" name="back" value="back">back</button><br>
-<button type="submit" name="name" value="prev">previous</button>
-<button type="submit" name="name" value="next">next</button><br>
-<button type="submit" name="action" value="skip">skip</button>
-<button type="submit" name="action" value="save">save</button>
-</form>"""
-    web_text += f"""
-{os.path.basename(coordinates_file_name)}:
-<table>
-<tr>
-<td>{deceased_name}<br><br><br><br><br><br><br>.</td>
-<td><img src="/hdsc/image.png" width="600"> {len(read_processed_files())}/{len(image_file_list)}</td>
-</td>
-</table>
-<p>
-<strong>Instructies</strong>
-<br>Klik op "save" als de naam links hetzelfde is als de opgelichte naam in het document
-<br>Klik op "previous" of "next" om het opgelichte deel te verschuiven
-<br>Klik op "skip":
-<ol>
-<li> als de naam links anders is dan de naam in het document
-<br> (ook als "van" of "de" op de verkeerde plaats staat)
-<li> als links staat "unknown name" of "levenloos"
-<li> als het document geen naam bevat
-<li> als het opgelichte deel meer of minder tekst bevat dan de naam links
-<li> bij twijfel: altijd op "skip" drukken
-</ol>
-Als je een fout maakt dan kan je met "back" terug naar het vorige document
-<br>
-Deze tool is niet geschikt voor tegelijkertijd gebruik door meerdere mensen
-<br>
-Stuur vragen en opmerkingen naar e.tjongkimsang@esciencecenter.nl
-</body>
+ <head><title>annotate></title></head>
+ <body>
+  <form method="post">
+   <input type="hidden" name="text_line_id" value="{text_line_id}">
+   <input type="hidden" name="coords_id" value="{coords_id}">
+   <input type="hidden" name="file_name" value="{os.path.basename(coordinates_file_name)}">
+   <input type="hidden" name="previous_file_name" value="{previous_file_name}">
+   <input type="hidden" name="deceased_name" value="{deceased_name}">
+   <input type="hidden" name="deceased_name_x_pos" value="{deceased_name_x_pos}">
+   <input type="hidden" name="deceased_name_y_pos" value="{deceased_name_y_pos}">
+   <button type="submit" name="back" value="back">back</button> (zie instructies onderaan)<br>
+   <button type="submit" name="name" value="prev">previous</button>
+   <button type="submit" name="name" value="next">next</button><br>
+   <button type="submit" name="action" value="skip">skip</button>
+   <button type="submit" name="action" value="save">save</button>
+  </form>
+  <p>{os.path.basename(coordinates_file_name)}:</p>
+  <table>
+   <tr>
+    <td>{deceased_name}<br><br><br><br><br>&nbsp;</td>
+    <td><img src="/hdsc/{ip_addr}/image.png" width="600"> {len(read_processed_files())}/{len(coordinates_file_list)}</td>
+    </td>
+   </tr>
+  </table>
+  <p>
+   <strong>Instructies</strong>
+   <br>Klik op "save" als de naam links hetzelfde is als de opgelichte naam in het document
+   <br>Klik op "previous" of "next" om het opgelichte deel te verschuiven
+   <br>Klik op "skip":
+  </p>
+  <ol>
+   <li> als de naam links anders is dan de naam in het document
+    <br> (ook als "van" of "de" op de verkeerde plaats staat)
+   <li> als links staat "unknown name" of "levenloos"
+   <li> als het document geen naam bevat
+   <li> als het opgelichte deel meer of minder tekst bevat dan de naam links
+   <li> bij twijfel: altijd op "skip" drukken
+  </ol>
+  <p>
+   Als je een fout maakt dan kan je met "back" terug naar het vorige document
+   <br>Deze tool is niet geschikt voor tegelijkertijd gebruik door meerdere mensen
+   <br>Stuur vragen en opmerkingen naar e.tjongkimsang@esciencecenter.nl
+  </p>
+ </body>
 </html>
 """
     return web_text
