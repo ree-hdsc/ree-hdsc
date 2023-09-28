@@ -6,6 +6,7 @@ import pandas as pd
 import random
 import regex
 import sys
+from unidecode import unidecode
 from PIL import Image, ImageDraw
 import xml.etree.ElementTree as ET
 from flask import Flask, request
@@ -101,18 +102,45 @@ def get_next_ids(polygons, text_line_id, coords_id):
 
 
 def read_processed_files():
-    data = pd.read_csv("etc/logfile")
-    return list(data.iloc[:,0])
+    return pd.read_csv("etc/logfile")
 
 
 def select_next_file(coordinates_file_list):
-    processed_files = read_processed_files()
+    processed_files = list(read_processed_files().iloc[:,0])
     unprocessed_files = [ file_name for file_name in coordinates_file_list if file_name not in processed_files ]
     if len(unprocessed_files) == 0:
         return "", ""
-    coordinates_file_name = unprocessed_files[random.randint(0, len(unprocessed_files) - 1)]
-    image_file_name = make_image_file_name(coordinates_file_name)
-    return os.path.join(COORDINATES_DIR, coordinates_file_name), image_file_name
+    while True:
+        coordinates_file_name = unprocessed_files[random.randint(0, len(unprocessed_files) - 1)]
+        image_file_name = make_image_file_name(coordinates_file_name)
+        deceased_name = get_deceased_name(coordinates_file_name)
+        if regex.search("(unknown|levenloos)", deceased_name, regex.IGNORECASE):
+            update_logfile(os.path.basename(coordinates_file_name), "skip", 0, 0, deceased_name, "0.0.0.0")
+        else:
+            break
+    return os.path.join(COORDINATES_DIR, coordinates_file_name), image_file_name, deceased_name
+
+
+def first_char_to_upper(name):
+    chars = list(name)
+    chars[0] = chars[0].upper()
+    return "".join(chars)
+
+
+def normalize_name(name):
+    stop_words = [ "de", "der", "van" ]
+    name_parts = unidecode(name).split()
+    for i in range(0, len(name_parts)):
+        if regex.search(r"^[A-Z,]+$", name_parts[i]):
+            name_parts[i] = name_parts[i].lower()
+        if regex.search(r"^[a-z,]+$", name_parts[i]) and name_parts[i] not in stop_words:
+            name_parts[i] = first_char_to_upper(name_parts[i])
+    last_i = len(name_parts)
+    while last_i > 0 and name_parts[last_i - 1] in stop_words:
+        last_i -= 1
+    if last_i < len(name_parts) and last_i > 0:
+        name_parts = name_parts[:last_i-1] + name_parts[last_i:] + [regex.sub(",$", "", name_parts[last_i-1])]
+    return " ".join(name_parts)
 
 
 def get_deceased_name(coordinates_file_name):
@@ -126,13 +154,13 @@ def get_deceased_name(coordinates_file_name):
         last_name = data_selection.iloc[0]["Achternaam"]
         if type(first_names) != str or first_names == "":
             if type(last_name) != str or last_name == "":
-                return ""
+                return "unknown name"
             else:
-                return last_name
+                return normalize_name(last_name)
         elif type(last_name) != str or last_name == "":
-            return first_names
+            return normalize_name(first_names)
         else:
-            return f"{first_names} {last_name}"
+            return normalize_name(f"{first_names} {last_name}")
 
 
 def remove_last_entry():
@@ -145,6 +173,16 @@ def remove_last_entry():
     logfile = open("etc/logfile", "w")
     for line in lines:
         print(line, file=logfile)
+    logfile.close()
+
+
+def resize_polygon(polygon):
+    return [ tuple([int(value/2) for value in coordinates]) for coordinates in polygon ]
+
+
+def update_logfile(file_name, action, text_line_id, coords_id, deceased_name, ip_addr):
+    logfile = open("etc/logfile", "a")
+    print(f"{file_name},{action},{text_line_id},{coords_id},\"{deceased_name}\",{ip_addr}", file=logfile)
     logfile.close()
 
 
@@ -161,23 +199,16 @@ def check_data():
         coords_id = request.form["coords_id"]
         file_name = request.form["file_name"]
         deceased_name = request.form["deceased_name"]
-        logfile = open("etc/logfile", "a")
-        print(f"{file_name},{action},{text_line_id},{coords_id},\"{deceased_name}\",{ip_addr}", file=logfile)
-        logfile.close()
+        update_logfile(file_name, action, text_line_id, coords_id, deceased_name, ip_addr)
         form_processed = True
     if "file_name" in request.form:
         previous_file_name = request.form["file_name"]
     else:
         previous_file_name = ""
-    #if "deceased_name_x_pos" in request.form:
-    #    deceased_name_x_pos = int(request.form["deceased_name_x_pos"])
-    #    deceased_name_y_pos = int(request.form["deceased_name_y_pos"])
-    #else:
     deceased_name_x_pos = DECEASED_NAME_X_POS
     deceased_name_y_pos = DECEASED_NAME_Y_POS
     coordinates_file_list = sorted(os.listdir(COORDINATES_DIR))
-    coordinates_file_name, image_file_name = select_next_file(coordinates_file_list)
-    deceased_name = get_deceased_name(coordinates_file_name)
+    coordinates_file_name, image_file_name, deceased_name = select_next_file(coordinates_file_list)
     if coordinates_file_name == "":
         return "Done!"
     polygons = get_text_polygons(coordinates_file_name)
@@ -208,7 +239,6 @@ def check_data():
                 coordinates_file_name = os.path.join(COORDINATES_DIR, coordinates_file_name)
                 deceased_name = get_deceased_name(coordinates_file_name)
                 polygons = get_text_polygons(coordinates_file_name)
-        # to be saved: text_line_list[text_line_id].attrib["id"] ?
         polygon = polygons[text_line_id][coords_id]
     else:
         text_line_id = int(len(polygons)/2)
@@ -218,14 +248,19 @@ def check_data():
     deceased_name_x_pos = int((rectangle[0] + rectangle[2])/2)
     deceased_name_y_pos = int((rectangle[1] + rectangle[3])/2)
     image = Image.open(image_file_name)
-    marked_image = mark_polygon(image, polygon)
+    width, height = image.size
+    image = image.resize((int(width/2), int(height/2)))
+    marked_image = mark_polygon(image, resize_polygon(polygon))
     img_dir = f"../../htdocs/hdsc/{ip_addr}/"
     if not os.path.isdir(img_dir):
         os.mkdir(img_dir)
-    marked_image.save(f"{img_dir}/image.png")
+    marked_image.save(f"{img_dir}/image.png", optimize=True, quality=1)
     web_text = f"""<html>
- <head><title>annotate></title></head>
+ <head><title>annotate</title></head>
  <body>
+  <p>
+   <a href="/cgi-bin/hdsc/">annotate</a> | <a href="/cgi-bin/hdsc/stats">stats</a>
+  </p>
   <form method="post">
    <input type="hidden" name="text_line_id" value="{text_line_id}">
    <input type="hidden" name="coords_id" value="{coords_id}">
@@ -264,11 +299,102 @@ def check_data():
   </ol>
   <p>
    Als je een fout maakt dan kan je met "back" terug naar het vorige document
-   <br>Deze tool is niet geschikt voor tegelijkertijd gebruik door meerdere mensen
    <br>Stuur vragen en opmerkingen naar e.tjongkimsang@esciencecenter.nl
   </p>
  </body>
 </html>
 """
     return web_text
+
+
+@app.route("/stats", methods=['GET', 'POST'])
+def stats():
+    data = read_processed_files()
+    labels = {}
+    file_names = {}
+    nbr_of_saved = 0
+    nbr_of_skipped = 0
+    for row_id, row in data.iterrows():
+        file_name = row[0]
+        label = row[1]
+        year = int(file_name.split()[1])
+        if file_name in file_names:
+            labels[year][file_names[file_name]] -= 1
+        if year not in labels:
+            labels[year] = {}
+        if label not in labels[year]:
+            labels[year]["save"] = 0
+            labels[year]["skip"] = 0
+        labels[year][label] += 1
+        if label == "save":
+            nbr_of_saved += 1
+        elif label == "skip":
+            nbr_of_skipped += 1
+        file_names[file_name] = label
+    return """
+<html>
+<head>
+<title>number of saved data per year</title>
+</head>
+<body>
+<style>
+  #chart-wrapper {
+    display: inline-block;
+    position: relative;
+    width: 25%;
+  }
+</style>
+<p>
+ <a href="/cgi-bin/hdsc/">annotate</a> | <a href="/cgi-bin/hdsc/stats">stats</a>
+</p>
+<h3>number of saved data per year</h3>
+<p>
+""" + f"""
+Number of saved files: {nbr_of_saved} ({int(0.5 + 100 * nbr_of_saved/(nbr_of_saved + nbr_of_skipped))}%)
+<br>Number of skipped files: {nbr_of_skipped} ({int(0.5 + 100 * nbr_of_skipped/(nbr_of_saved + nbr_of_skipped))}%)
+""" + """
+
+<div id="chart-wrapper">
+<canvas id="myChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  const ctx = document.getElementById('myChart');
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+""" + f"""
+      labels: {list(labels.keys())[:20]},
+      datasets: [{{
+        label: '# of saved data',
+        data: {[labels[year]["save"] for year in labels][:20]},
+        borderWidth: 1
+      }},
+      {{
+        label: '# of skipped data',
+        data: {[labels[year]["skip"] for year in labels][:20]},
+        borderWidth: 1
+      }}]
+""" + """
+    },
+    options: {
+      scales: {
+        x: {
+          stacked: true
+        },
+        y: {
+          beginAtZero: true,
+          stacked: true
+        }
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
+"""
 
