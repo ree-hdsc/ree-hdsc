@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import datetime
 import numpy
 import os
 import pandas as pd
@@ -82,21 +83,19 @@ def get_text_position(polygons, position):
 
 
 def get_previous_ids(polygons, text_line_id, coords_id):
-    if coords_id <= 0:
-        if text_line_id <= 0:
-            return -1, -1
-        else:
-            return text_line_id - 1, len(polygons[text_line_id - 1]) - 1
+    if text_line_id == 0 and coords_id == 0:
+        return len(polygons) - 1, len(polygons[-1]) - 1
+    if coords_id == 0:
+        return text_line_id - 1, len(polygons[text_line_id - 1]) - 1
     else:
         return text_line_id, coords_id - 1
 
 
 def get_next_ids(polygons, text_line_id, coords_id):
-    if coords_id >= len(polygons[text_line_id]) - 1:
-        if text_line_id >= len(polygons) - 1:
-            return -1, -1
-        else:
-            return text_line_id + 1, 0
+    if text_line_id == len(polygons) - 1 and coords_id == len(polygons[-1]) - 1:
+        return 0, 0
+    if coords_id == len(polygons[text_line_id]) - 1:
+        return text_line_id + 1, 0
     else:
         return text_line_id, coords_id + 1
 
@@ -128,7 +127,7 @@ def first_char_to_upper(name):
 
 
 def normalize_name(name):
-    stop_words = [ "de", "der", "van" ]
+    stop_words = [ "da", "de", "der", "van" ]
     name_parts = unidecode(name).split()
     for i in range(0, len(name_parts)):
         if regex.search(r"^[A-Z,]+$", name_parts[i]):
@@ -176,13 +175,18 @@ def remove_last_entry():
     logfile.close()
 
 
-def resize_polygon(polygon):
-    return [ tuple([int(value/2) for value in coordinates]) for coordinates in polygon ]
+def resize_image(image, factor):
+    width, height = image.size
+    return image.resize((int(width/factor), int(height/factor)))
+
+
+def resize_polygon(polygon, factor):
+    return [ tuple([int(value/factor) for value in coordinates]) for coordinates in polygon ]
 
 
 def update_logfile(file_name, action, text_line_id, coords_id, deceased_name, ip_addr):
     logfile = open("etc/logfile", "a")
-    print(f"{file_name},{action},{text_line_id},{coords_id},\"{deceased_name}\",{ip_addr}", file=logfile)
+    print(f"{file_name},{action},{text_line_id},{coords_id},\"{deceased_name}\",{ip_addr},{datetime.date.today()}", file=logfile)
     logfile.close()
 
 
@@ -201,7 +205,9 @@ def check_data():
         deceased_name = request.form["deceased_name"]
         update_logfile(file_name, action, text_line_id, coords_id, deceased_name, ip_addr)
         form_processed = True
-    if "file_name" in request.form:
+    if "previous_file_name" in request.form and "name" in request.form:
+        previous_file_name = request.form["previous_file_name"]
+    elif "file_name" in request.form:
         previous_file_name = request.form["file_name"]
     else:
         previous_file_name = ""
@@ -233,6 +239,22 @@ def check_data():
                 coordinates_file_name = os.path.join(COORDINATES_DIR, coordinates_file_name)
                 deceased_name = get_deceased_name(coordinates_file_name)
                 polygons = get_text_polygons(coordinates_file_name)
+            if "name" in request.form and str(request.form["name"]) == "minus5":
+                for i in range(0, 5):
+                    text_line_id, coords_id = get_previous_ids(polygons, text_line_id, coords_id)
+                coordinates_file_name = request.form["file_name"]
+                image_file_name = make_image_file_name(coordinates_file_name)
+                coordinates_file_name = os.path.join(COORDINATES_DIR, coordinates_file_name)
+                deceased_name = get_deceased_name(coordinates_file_name)
+                polygons = get_text_polygons(coordinates_file_name)
+            if "name" in request.form and str(request.form["name"]) == "plus5":
+                for i in range(0, 5):
+                    text_line_id, coords_id = get_next_ids(polygons, text_line_id, coords_id)
+                coordinates_file_name = request.form["file_name"]
+                image_file_name = make_image_file_name(coordinates_file_name)
+                coordinates_file_name = os.path.join(COORDINATES_DIR, coordinates_file_name)
+                deceased_name = get_deceased_name(coordinates_file_name)
+                polygons = get_text_polygons(coordinates_file_name)
             if "back" in request.form:
                 coordinates_file_name = request.form["previous_file_name"]
                 image_file_name = make_image_file_name(coordinates_file_name)
@@ -248,9 +270,9 @@ def check_data():
     deceased_name_x_pos = int((rectangle[0] + rectangle[2])/2)
     deceased_name_y_pos = int((rectangle[1] + rectangle[3])/2)
     image = Image.open(image_file_name)
-    width, height = image.size
-    image = image.resize((int(width/2), int(height/2)))
-    marked_image = mark_polygon(image, resize_polygon(polygon))
+    resize_factor = 4
+    image = resize_image(image, resize_factor)
+    marked_image = mark_polygon(image, resize_polygon(polygon, resize_factor))
     img_dir = f"../../htdocs/hdsc/{ip_addr}/"
     if not os.path.isdir(img_dir):
         os.mkdir(img_dir)
@@ -270,8 +292,10 @@ def check_data():
    <input type="hidden" name="deceased_name_x_pos" value="{deceased_name_x_pos}">
    <input type="hidden" name="deceased_name_y_pos" value="{deceased_name_y_pos}">
    <button type="submit" name="back" value="back">back</button> (zie instructies onderaan)<br>
+   <button type="submit" name="name" value="minus5">minus 5</button>
    <button type="submit" name="name" value="prev">previous</button>
-   <button type="submit" name="name" value="next">next</button><br>
+   <button type="submit" name="name" value="next">next</button>
+   <button type="submit" name="name" value="plus5">plus 5</button><br>
    <button type="submit" name="action" value="skip">skip</button>
    <button type="submit" name="action" value="save">save</button>
   </form>
@@ -286,13 +310,12 @@ def check_data():
   <p>
    <strong>Instructies</strong>
    <br>Klik op "save" als de naam links hetzelfde is als de opgelichte naam in het document
-   <br>Klik op "previous" of "next" om het opgelichte deel te verschuiven
+   <br>Klik op "previous" of "next" om het opgelichte deel 1 stap te verschuiven, "minus 5" en "plus 5" verschuiven het 5 stappen
    <br>Klik op "skip":
   </p>
   <ol>
    <li> als de naam links anders is dan de naam in het document
-    <br> (ook als "van" of "de" op de verkeerde plaats staat)
-   <li> als links staat "unknown name" of "levenloos"
+    <br> (ook als "van", "de", "der" of "da" op de verkeerde plaats staat)
    <li> als het document geen naam bevat
    <li> als het opgelichte deel meer of minder tekst bevat dan de naam links
    <li> bij twijfel: altijd op "skip" drukken
@@ -314,9 +337,11 @@ def stats():
     file_names = {}
     nbr_of_saved = 0
     nbr_of_skipped = 0
+    date_counts = {}
     for row_id, row in data.iterrows():
         file_name = row[0]
         label = row[1]
+        date = row[6]
         year = int(file_name.split()[1])
         if file_name in file_names:
             labels[year][file_names[file_name]] -= 1
@@ -331,10 +356,18 @@ def stats():
         elif label == "skip":
             nbr_of_skipped += 1
         file_names[file_name] = label
+        if date not in date_counts:
+            date_counts[date] = 0
+        date_counts[date] += 1
+    last_date = ""
+    for date in sorted(list(date_counts.keys())):
+        if last_date != "":
+            date_counts[date] += date_counts[last_date]
+        last_date = date
     return """
 <html>
 <head>
-<title>number of saved data per year</title>
+<title>Stats</title>
 </head>
 <body>
 <style>
@@ -347,12 +380,14 @@ def stats():
 <p>
  <a href="/cgi-bin/hdsc/">annotate</a> | <a href="/cgi-bin/hdsc/stats">stats</a>
 </p>
-<h3>number of saved data per year</h3>
+<h2>Stats</h2>
 <p>
 """ + f"""
 Number of saved files: {nbr_of_saved} ({int(0.5 + 100 * nbr_of_saved/(nbr_of_saved + nbr_of_skipped))}%)
 <br>Number of skipped files: {nbr_of_skipped} ({int(0.5 + 100 * nbr_of_skipped/(nbr_of_saved + nbr_of_skipped))}%)
 """ + """
+
+<h3>Per year</h3>
 
 <div id="chart-wrapper">
 <canvas id="myChart"></canvas>
@@ -367,15 +402,15 @@ Number of saved files: {nbr_of_saved} ({int(0.5 + 100 * nbr_of_saved/(nbr_of_sav
     type: 'bar',
     data: {
 """ + f"""
-      labels: {list(labels.keys())[:20]},
+      labels: {sorted(list(labels.keys()))[:20]},
       datasets: [{{
-        label: '# of saved data',
-        data: {[labels[year]["save"] for year in labels][:20]},
+        label: 'number of saved files',
+        data: {[labels[year]["save"] for year in sorted(list(labels.keys()))][:20]},
         borderWidth: 1
       }},
       {{
-        label: '# of skipped data',
-        data: {[labels[year]["skip"] for year in labels][:20]},
+        label: 'number of skipped files',
+        data: {[labels[year]["skip"] for year in sorted(list(labels.keys()))][:20]},
         borderWidth: 1
       }}]
 """ + """
@@ -392,6 +427,34 @@ Number of saved files: {nbr_of_saved} ({int(0.5 + 100 * nbr_of_saved/(nbr_of_sav
       }
     }
   });
+</script>
+
+<h3>Per annotation date</h3>
+<p>
+<div id="chart-wrapper">
+<canvas id="lineChart"></canvas>
+</div>
+</p>
+
+<script>
+""" + f"""
+const xValues = {sorted(list(date_counts.keys()))};
+const yValues = {[date_counts[date] for date in sorted(list(date_counts.keys()))]}
+""" + """
+
+new Chart("lineChart", {
+  type: "line",
+  data: {
+    labels: xValues,
+    datasets: [{
+      label: 'number of annotated files per date',
+      backgroundColor:"rgba(0,0,255,1.0)",
+      borderColor: "rgba(0,0,255,0.1)",
+      data: yValues
+    }]
+  },
+  options:{  }
+});
 </script>
 
 </body>
