@@ -1,0 +1,60 @@
+<html>
+ <head><title>Annotateren</title></head>
+ <body>
+  <p>
+   <a href="/cgi-bin/hdsc/">annoteren</a> | <a href="/cgi-bin/hdsc/stats">statistieken</a>
+  </p>
+  <form method="post">
+	  <input type="hidden" name="text_line_id" value="{{text_line_id}}">
+	  <input type="hidden" name="coords_id" value="{{coords_id}}">
+	  <input type="hidden" name="file_name" value="{{file_name}}">
+	  <input type="hidden" name="previous_file_name" value="{{previous_file_name}}">
+	  <input type="hidden" name="deceased_name" value="{{deceased_name}}">
+   <button type="submit" name="go_back" value="go_back">go back</button> (zie instructies onderaan)<br>
+   <button type="submit" name="move_frame" value="minus5">minus 5</button>
+   <button type="submit" name="move_frame" value="plus5">plus 5</button><br>
+   <button type="submit" name="move_frame" value="prev">previous</button>
+   <button type="submit" name="move_frame" value="next">next</button><br>
+   <button type="submit" name="annotate" value="skip">skip</button>
+   <button type="submit" name="annotate" value="save">save</button>
+  </form>
+  <p>{{file_name}}:</p>
+  <table>
+   <tr>
+    <td>{{deceased_name}}<br><br><br><br><br>&nbsp;</td>
+    <td><img src="/hdsc/{{ip_addr}}/image.png" width="600" height="450"> {{nbr_of_processed_files}}/{{nbr_of_files}}</td>
+    </td>
+   </tr>
+  </table>
+  <p>
+   <strong>Instructies</strong>
+   <p>
+    Met dit programma zoeken we naar namen van overledenen in scans van het overlijdensregister van Curacao uit de negentiende eeuw.
+   </p>
+   <p>
+    Klik op "save" als de naam links hetzelfde is als de opgelichte naam in het document
+   </p>
+   <p>
+    Klik op "previous" of "next" om het opgelichte deel 1 stap te verschuiven, "minus 5" en "plus 5" verschuiven het 5 stappen
+   <p>
+    Klik op "skip":
+   </p>
+  </p>
+  <ol>
+   <li> als de naam links anders is dan de naam in het document:
+    <ul>
+     <li> verschil tussen hoofdletters en kleine letters maakt niet uit
+     <li> tussenvoegsels als "van", "de", "der" of "da" moeten wel op de goede plaats staan
+    </ul>
+   <li> als het document geen naam bevat
+   <li> als het opgelichte deel meer of minder tekst bevat dan de naam links
+   <li> bij twijfel: altijd op "skip" drukken
+  </ol>
+  <p>
+   Als je een fout maakt dan kan je met "go back" terug naar het vorige document
+  </p>
+  <p>
+   Stuur vragen en opmerkingen naar Erik: e.tjongkimsang@esciencecenter.nl
+  </p>
+ </body>
+</html>

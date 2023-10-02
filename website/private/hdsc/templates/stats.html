@@ -1,0 +1,92 @@
+<html>
+ <head>
+  <title>Statistieken</title>
+ </head>
+ <body>
+  <style>
+   #chart-wrapper {
+    display: inline-block;
+    position: relative;
+    width: 25%;
+   }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <p>
+   <a href="/cgi-bin/hdsc/">annoteren</a> | <a href="/cgi-bin/hdsc/stats">statistieken</a>
+  </p>
+  <h2>Stats</h2>
+  <p>
+   Number of saved files: {{nbr_of_saved}} ({{(0.5 + 100 * nbr_of_saved/(nbr_of_saved + nbr_of_skipped))|int}}%)
+   <br>Number of skipped files: {{nbr_of_skipped}} ({{(0.5 + 100 * nbr_of_skipped/(nbr_of_saved + nbr_of_skipped))|int}}%)
+   <br>Total processed files: {{nbr_of_saved+nbr_of_skipped}}
+  </p>
+  <h3>Per year</h3>
+
+  <div id="chart-wrapper">
+   <canvas id="myChart"></canvas>
+  </div>
+
+  <script>
+   const ctx = document.getElementById('myChart');
+
+   new Chart(ctx, {
+    type: 'bar',
+    data: {
+     labels: {{labels}},
+     datasets: [{
+      label: 'number of saved files',
+      data: {{counts_saved}},
+      borderWidth: 1
+     },
+     {
+      label: 'number of skipped files',
+      data: {{counts_skipped}},
+      borderWidth: 1
+     }]
+    },
+    options: {
+     scales: {
+      x: {
+       stacked: true
+      },
+      y: {
+       beginAtZero: true,
+       stacked: true
+      }
+     }
+    }
+   });
+  </script>
+
+  <h3>Per annotation date</h3>
+
+  <div id="chart-wrapper">
+   <canvas id="lineChart"></canvas>
+  </div>
+
+  <script>
+   const xValues = {{x_values}}
+   const yValues = {{y_values}}
+
+   new Chart("lineChart", {
+    type: "line",
+    data: {
+     labels: xValues,
+     datasets: [{
+      label: 'number of annotated files per date',
+      backgroundColor:"rgba(0,0,255,1.0)",
+      borderColor: "rgba(0,0,255,0.1)",
+      data: yValues
+     }]
+    },
+    options: {
+     scales: { 
+      y: { 
+       beginAtZero: true 
+      }
+     }
+    }
+   });
+  </script>
+ </body>
+</html>
