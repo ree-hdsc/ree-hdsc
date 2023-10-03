@@ -18,8 +18,8 @@ COORDINATES_DIR = CORPUS_DIR + "page/"
 
 TRANSPARENT_BACKGROUND = 255
 COVERED_BACKGROUND = 128
-DECEASED_NAME_DEFAULT_X_POS = 600
-DECEASED_NAME_DEFAULT_Y_POS = 460
+DECEASED_NAME_DEFAULT_X_POS = 684
+DECEASED_NAME_DEFAULT_Y_POS = 471
 
 
 def polygon2rectangle(coordinates):
@@ -62,13 +62,35 @@ def encloses_point(rectangle, point):
            rectangle[1] <= point[1] and rectangle[3] >= point[1])
 
 
+def find_top_left(polygon):
+    top_coordinate = 1000000
+    left_coordinate = 1000000
+    for pair in polygon[0]:
+        if pair[1] < top_coordinate:
+            top_coordinate = pair[1]
+        if pair[0] < left_coordinate:
+            left_coordinate = pair[0]
+    return top_coordinate, left_coordinate
+
+
+def sort_polygons(polygons):
+    extended_polygons = []
+    for polygon in polygons:
+        top_coordinate, left_coordinate = find_top_left(polygon)
+        extended_polygons.append([top_coordinate, left_coordinate, polygon])
+    return [ extended_polygon[2] for extended_polygon in sorted(extended_polygons, key=lambda ep: (ep[0], ep[1])) ]
+
+
 def get_text_polygons(coordinates_file_name):
     root = ET.parse(coordinates_file_name).getroot()
     polygons = []
-    for text_line in root.findall(".//{*}TextLine"):
-        polygons.append([])
-        for coords in text_line.findall("./{*}Coords"):
-            polygons[-1].append(get_coordinates_from_line(coords.attrib["points"]))
+    for text_region in root.findall(".//{*}TextRegion"):
+        text_region_polygons = []
+        for text_line in text_region.findall("./{*}TextLine"):
+            text_region_polygons.append([])
+            for coords in text_line.findall("./{*}Coords"):
+                text_region_polygons[-1].append(get_coordinates_from_line(coords.attrib["points"]))
+        polygons.extend(sort_polygons(text_region_polygons))
     return polygons
 
 
@@ -78,7 +100,7 @@ def get_text_position(polygons, position):
             rectangle = polygon2rectangle(polygons[text_line_id][coords_id])
             if encloses_point(rectangle, position):
                 return text_line_id, coords_id
-    return -1, -1
+    return int(len(polygons)/2), 0
 
 
 def move_ids(polygons, text_line_id, coords_id, count):
@@ -254,7 +276,7 @@ def annotate():
     ip_addr = request.remote_addr
     coordinates_file_name, previous_file_name = determine_file_names(request, ip_addr)
     if coordinates_file_name == "":
-        return "Done!"
+        return render_template("finished.html")
     image_file_name = make_image_file_name(coordinates_file_name)
     deceased_name = get_deceased_name(coordinates_file_name)
     polygons = get_text_polygons(coordinates_file_name)
