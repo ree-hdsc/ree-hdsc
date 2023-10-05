@@ -15,11 +15,11 @@ from flask import Flask, request, render_template
 
 CORPUS_DIR = "data/"
 COORDINATES_DIR = CORPUS_DIR + "page/"
-
 TRANSPARENT_BACKGROUND = 255
 COVERED_BACKGROUND = 128
-DECEASED_NAME_DEFAULT_X_POS = 684
+DECEASED_NAME_DEFAULT_X_POS = 693
 DECEASED_NAME_DEFAULT_Y_POS = 471
+MINIMUM_TEXT_AREA = 3600 # half of smallest text field found
 
 
 def polygon2rectangle(coordinates):
@@ -103,17 +103,27 @@ def get_text_position(polygons, position):
     return int(len(polygons)/2), 0
 
 
+def compute_rectangle_area(rectangle):
+    x_min, y_min, x_max, y_max = rectangle
+    return (x_max - x_min) * (y_max - y_min)
+
+
 def move_ids(polygons, text_line_id, coords_id, count):
     if count == 0:
         return text_line_id, coords_id
     elif count > 0:
         text_line_id, coords_id = get_next_ids(polygons, text_line_id, coords_id)
-        return move_ids(polygons, text_line_id, coords_id, count - 1)
+        increment = -1
     elif count < 0:
         text_line_id, coords_id = get_previous_ids(polygons, text_line_id, coords_id)
-        return move_ids(polygons, text_line_id, coords_id, count + 1)
+        increment = 1
     else:
         sys.exit("move_ids: cannot happen")
+    rectangle = polygon2rectangle(polygons[text_line_id][coords_id])
+    if compute_rectangle_area(rectangle) >= MINIMUM_TEXT_AREA:
+        return move_ids(polygons, text_line_id, coords_id, count + increment)
+    else: # potential infinite loop
+        return move_ids(polygons, text_line_id, coords_id, count)
 
 
 def get_previous_ids(polygons, text_line_id, coords_id):
@@ -147,7 +157,7 @@ def select_next_file():
     while True:
         coordinates_file_name = unprocessed_files[random.randint(0, len(unprocessed_files) - 1)]
         deceased_name = get_deceased_name(coordinates_file_name)
-        if regex.search("(unknown|levenloos)", deceased_name, regex.IGNORECASE) or len(get_text_polygons(os.path.join(COORDINATES_DIR, coordinates_file_name))) == 0:
+        if regex.search("(unknown|levenloos|levensloos)", deceased_name, regex.IGNORECASE) or len(get_text_polygons(os.path.join(COORDINATES_DIR, coordinates_file_name))) == 0:
             update_logfile(os.path.basename(coordinates_file_name), "skip", 0, 0, deceased_name, "0.0.0.0")
         else:
             break
