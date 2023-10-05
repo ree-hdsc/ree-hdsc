@@ -19,6 +19,7 @@ TRANSPARENT_BACKGROUND = 255
 COVERED_BACKGROUND = 128
 DECEASED_NAME_DEFAULT_X_POS = 693
 DECEASED_NAME_DEFAULT_Y_POS = 471
+DECEASED_NAME_DEFAULT_Y_LINE = 509
 MINIMUM_TEXT_AREA = 3600 # half of smallest text field found
 
 
@@ -94,13 +95,26 @@ def get_text_polygons(coordinates_file_name):
     return polygons
 
 
-def get_text_position(polygons, position):
+def get_best_polygon_for_y(polygons, best_y):
+    best_distance, best_text_line_id, best_coords_id = (sys.maxsize, -1, -1)
     for text_line_id in range(0, len(polygons)):
         for coords_id in range(0, len(polygons[text_line_id])):
             rectangle = polygon2rectangle(polygons[text_line_id][coords_id])
-            if encloses_point(rectangle, position):
+            distance = abs(best_y - rectangle[1])
+            if distance < best_distance and compute_rectangle_area(rectangle) >= MINIMUM_TEXT_AREA:
+                best_distance = distance
+                best_text_line_id = text_line_id
+                best_coords_id = coords_id
+    return best_text_line_id, best_coords_id
+
+
+def get_text_position(polygons, best_position, best_y):
+    for text_line_id in range(0, len(polygons)):
+        for coords_id in range(0, len(polygons[text_line_id])):
+            rectangle = polygon2rectangle(polygons[text_line_id][coords_id])
+            if encloses_point(rectangle, best_position) and compute_rectangle_area(rectangle) >= MINIMUM_TEXT_AREA:
                 return text_line_id, coords_id
-    return int(len(polygons)/2), 0
+    return get_best_polygon_for_y(polygons, best_y)
 
 
 def compute_rectangle_area(rectangle):
@@ -256,7 +270,7 @@ def determine_file_names(request, ip_addr):
 
 def determine_polygon(polygons, request):
     if "move_frame" not in request.form:
-        text_line_id, coords_id = get_text_position(polygons, [DECEASED_NAME_DEFAULT_X_POS, DECEASED_NAME_DEFAULT_Y_POS])
+        text_line_id, coords_id = get_text_position(polygons, [DECEASED_NAME_DEFAULT_X_POS, DECEASED_NAME_DEFAULT_Y_POS], DECEASED_NAME_DEFAULT_Y_LINE)
     else:
         text_line_id = int(request.form["text_line_id"])
         coords_id = int(request.form["coords_id"])
