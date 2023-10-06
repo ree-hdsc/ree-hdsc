@@ -91,7 +91,8 @@ def get_text_polygons(coordinates_file_name):
             text_region_polygons.append([])
             for coords in text_line.findall("./{*}Coords"):
                 text_region_polygons[-1].append(get_coordinates_from_line(coords.attrib["points"]))
-        polygons.extend(sort_polygons(text_region_polygons))
+        if len(text_region_polygons) > len(polygons):
+            polygons = sort_polygons(text_region_polygons)
     return polygons
 
 
@@ -184,19 +185,35 @@ def first_char_to_upper(name):
     return "".join(chars)
 
 
-def normalize_name(name):
-    stop_words = [ "da", "de", "der", "la", "van" ]
-    name_parts = unidecode(name).split()
+def fix_lower_and_upper_case(name_parts, prefix_words):
     for i in range(0, len(name_parts)):
         if regex.search(r"^[A-Z,]+$", name_parts[i]):
             name_parts[i] = name_parts[i].lower()
-        if regex.search(r"^[a-z,]+$", name_parts[i]) and name_parts[i] not in stop_words:
+        if regex.search(r"^[a-z,]+$", name_parts[i]) and name_parts[i] not in prefix_words:
             name_parts[i] = first_char_to_upper(name_parts[i])
+    return name_parts
+
+
+def move_prefix_words(name_parts, prefix_words):
     last_i = len(name_parts)
-    while last_i > 0 and name_parts[last_i - 1] in stop_words:
+    while last_i > 0 and name_parts[last_i - 1].lower() in prefix_words:
         last_i -= 1
+    if last_i == len(name_parts) - 1 and name_parts[last_i].lower() == "da":
+        for i in range(last_i - 1, 0, -1):
+            if name_parts[i].lower() == "costa":
+                name_parts = name_parts[:i] + name_parts[last_i:] + name_parts[i:last_i-1] + [regex.sub(",$", "", name_parts[last_i-1])]
+                last_i = len(name_parts)
+                break
     if last_i < len(name_parts) and last_i > 0:
         name_parts = name_parts[:last_i-1] + name_parts[last_i:] + [regex.sub(",$", "", name_parts[last_i-1])]
+    return name_parts
+
+
+def normalize_name(name):
+    prefix_words = [ "da", "de", "der", "la", "le", "van" ]
+    name_parts = unidecode(name).split()
+    name_parts = fix_lower_and_upper_case(name_parts, prefix_words)
+    name_parts = move_prefix_words(name_parts, prefix_words)
     return " ".join(name_parts)
 
 
