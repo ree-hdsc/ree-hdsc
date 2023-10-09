@@ -279,6 +279,9 @@ def determine_file_names(request, ip_addr):
         update_logfile(request.form["file_name"], request.form["annotate"], request.form["text_line_id"], request.form["coords_id"], request.form["deceased_name"], ip_addr)
         coordinates_file_name = select_next_file()
         previous_file_name = request.form["file_name"]
+    elif request.args.get("file_name") != None:
+        coordinates_file_name = os.path.join(COORDINATES_DIR, request.args.get("file_name"))
+        previous_file_name = ""
     else:
         coordinates_file_name = select_next_file()
         previous_file_name = ""
@@ -342,6 +345,7 @@ def stats():
     nbr_of_saved = 0
     nbr_of_skipped = 0
     date_counts = {}
+    total_files = len(os.listdir(COORDINATES_DIR))
     for row_id, row in data.iterrows():
         file_name = row[0]
         label = row[1]
@@ -375,5 +379,6 @@ def stats():
                            counts_saved=[labels[year]["save"] for year in sorted(list(labels.keys()))][:20],
                            counts_skipped=[labels[year]["skip"] for year in sorted(list(labels.keys()))][:20],
                            x_values=sorted(list(date_counts.keys())),
-                           y_values=[date_counts[date] for date in sorted(list(date_counts.keys()))])
+                           y_values=[date_counts[date] for date in sorted(list(date_counts.keys()))],
+                           total_files=total_files)
 
