@@ -18,9 +18,9 @@ COORDINATES_DIR = CORPUS_DIR + "page/"
 TRANSPARENT_BACKGROUND = 255
 COVERED_BACKGROUND = 128
 DECEASED_NAME_DEFAULT_X_POS = 693
-DECEASED_NAME_DEFAULT_Y_POS = 471
+DECEASED_NAME_DEFAULT_Y_POS = 469
 DECEASED_NAME_DEFAULT_Y_LINE = 509
-MINIMUM_TEXT_AREA = 3600 # half of smallest text field found
+MINIMUM_TEXT_AREA = 6000 # about 80% of smallest text field found
 
 
 def polygon2rectangle(coordinates):
@@ -210,7 +210,7 @@ def move_prefix_words(name_parts, prefix_words):
 
 
 def normalize_name(name):
-    prefix_words = [ "da", "de", "der", "la", "le", "van" ]
+    prefix_words = [ "da", "de", "den", "der", "la", "le", "van" ]
     name_parts = unidecode(name).split()
     name_parts = fix_lower_and_upper_case(name_parts, prefix_words)
     name_parts = move_prefix_words(name_parts, prefix_words)
