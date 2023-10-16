@@ -294,14 +294,14 @@ def determine_polygon(polygons, request):
     else:
         text_line_id = int(request.form["text_line_id"])
         coords_id = int(request.form["coords_id"])
-        if request.form["move_frame"] == "minus5":
-            text_line_id, coords_id = move_ids(polygons, text_line_id, coords_id, -5)
+        if request.form["move_frame"] == "minus3":
+            text_line_id, coords_id = move_ids(polygons, text_line_id, coords_id, -3)
         elif request.form["move_frame"] == "prev":
             text_line_id, coords_id = move_ids(polygons, text_line_id, coords_id, -1)
         elif request.form["move_frame"] == "next":
             text_line_id, coords_id = move_ids(polygons, text_line_id, coords_id, 1)
-        elif request.form["move_frame"] == "plus5":
-            text_line_id, coords_id = move_ids(polygons, text_line_id, coords_id, 5)
+        elif request.form["move_frame"] == "plus3":
+            text_line_id, coords_id = move_ids(polygons, text_line_id, coords_id, 3)
     return text_line_id, coords_id
 
 
