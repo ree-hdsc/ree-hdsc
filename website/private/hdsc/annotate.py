@@ -18,8 +18,11 @@ COORDINATES_DIR = CORPUS_DIR + "page/"
 TRANSPARENT_BACKGROUND = 255
 COVERED_BACKGROUND = 128
 DECEASED_NAME_DEFAULT_X_POS = 688
-DECEASED_NAME_DEFAULT_Y_POS = 471
-DECEASED_NAME_DEFAULT_Y_LINE = 510
+DECEASED_NAME_DEFAULT_Y_POS = 600
+DECEASED_NAME_DEFAULT_Y_LINE = 582
+DECEASED_NAME_DEFAULT_X_POS_1831 = 688
+DECEASED_NAME_DEFAULT_Y_POS_1831 = 471
+DECEASED_NAME_DEFAULT_Y_LINE_1831 = 510
 MINIMUM_TEXT_AREA = 6000 # about 80% of smallest text field found
 
 
@@ -211,7 +214,7 @@ def move_prefix_words(name_parts, prefix_words):
 
 def normalize_name(name):
     prefix_words = [ "da", "de", "den", "der", "la", "le", "van" ]
-    name_parts = unidecode(name).split()
+    name_parts = regex.split('[\s,]', unidecode(name))
     name_parts = fix_lower_and_upper_case(name_parts, prefix_words)
     name_parts = move_prefix_words(name_parts, prefix_words)
     return " ".join(name_parts)
@@ -221,6 +224,9 @@ def get_deceased_name(coordinates_file_name):
     short_file_name = os.path.splitext(os.path.basename(coordinates_file_name))[0]
     data = pd.read_csv(CORPUS_DIR + "Overlijdensmerged.csv", low_memory=False)
     data_selection = data.loc[data["Scans"] == short_file_name]
+    if len(data_selection) == 0:
+        short_file_name = regex.sub(" 0+", " ", short_file_name)
+        data_selection = data.loc[data["Scans"] == short_file_name]
     if len(data_selection) == 0:
         return f"unknown name"
     else:
@@ -288,9 +294,12 @@ def determine_file_names(request, ip_addr):
     return coordinates_file_name, previous_file_name
 
 
-def determine_polygon(polygons, request):
+def determine_polygon(polygons, request, image_file_name):
     if "move_frame" not in request.form:
-        text_line_id, coords_id = get_text_position(polygons, [DECEASED_NAME_DEFAULT_X_POS, DECEASED_NAME_DEFAULT_Y_POS], DECEASED_NAME_DEFAULT_Y_LINE)
+        if regex.search("192[0-9]", image_file_name):
+            text_line_id, coords_id = get_text_position(polygons, [DECEASED_NAME_DEFAULT_X_POS, DECEASED_NAME_DEFAULT_Y_POS], DECEASED_NAME_DEFAULT_Y_LINE)
+        else:
+            text_line_id, coords_id = get_text_position(polygons, [DECEASED_NAME_DEFAULT_X_POS_1831, DECEASED_NAME_DEFAULT_Y_POS_1831], DECEASED_NAME_DEFAULT_Y_LINE_1831)
     else:
         text_line_id = int(request.form["text_line_id"])
         coords_id = int(request.form["coords_id"])
@@ -324,7 +333,7 @@ def annotate():
     image_file_name = make_image_file_name(coordinates_file_name)
     deceased_name = get_deceased_name(coordinates_file_name)
     polygons = get_text_polygons(coordinates_file_name)
-    text_line_id, coords_id = determine_polygon(polygons, request)
+    text_line_id, coords_id = determine_polygon(polygons, request, image_file_name)
     prepare_image(image_file_name, polygons[text_line_id][coords_id], ip_addr)
     return render_template("index.html",
                            text_line_id=text_line_id,
@@ -375,9 +384,9 @@ def stats():
     return render_template("stats.html", 
                            nbr_of_saved=nbr_of_saved, 
                            nbr_of_skipped=nbr_of_skipped, 
-                           labels=sorted(list(labels.keys()))[:20], 
-                           counts_saved=[labels[year]["save"] for year in sorted(list(labels.keys()))][:20],
-                           counts_skipped=[labels[year]["skip"] for year in sorted(list(labels.keys()))][:20],
+                           labels=sorted(list(labels.keys())), 
+                           counts_saved=[labels[year]["save"] for year in sorted(list(labels.keys()))],
+                           counts_skipped=[labels[year]["skip"] for year in sorted(list(labels.keys()))],
                            x_values=sorted(list(date_counts.keys())),
                            y_values=[date_counts[date] for date in sorted(list(date_counts.keys()))],
                            total_files=total_files)
