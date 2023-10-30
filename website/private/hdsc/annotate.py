@@ -17,9 +17,9 @@ CORPUS_DIR = "data/"
 COORDINATES_DIR = CORPUS_DIR + "page/"
 TRANSPARENT_BACKGROUND = 255
 COVERED_BACKGROUND = 128
-DECEASED_NAME_DEFAULT_X_POS = 688
-DECEASED_NAME_DEFAULT_Y_POS = 600
-DECEASED_NAME_DEFAULT_Y_LINE = 582
+DECEASED_NAME_DEFAULT_X_POS = 768
+DECEASED_NAME_DEFAULT_Y_POS = 610
+DECEASED_NAME_DEFAULT_Y_LINE = 745
 DECEASED_NAME_DEFAULT_X_POS_1831 = 688
 DECEASED_NAME_DEFAULT_Y_POS_1831 = 471
 DECEASED_NAME_DEFAULT_Y_LINE_1831 = 510
@@ -214,7 +214,7 @@ def move_prefix_words(name_parts, prefix_words):
 
 def normalize_name(name):
     prefix_words = [ "da", "de", "den", "der", "la", "le", "van" ]
-    name_parts = regex.split('[\s,]', unidecode(name))
+    name_parts = regex.split('[\s,]+', unidecode(name))
     name_parts = fix_lower_and_upper_case(name_parts, prefix_words)
     name_parts = move_prefix_words(name_parts, prefix_words)
     return " ".join(name_parts)
