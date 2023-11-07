@@ -17,14 +17,14 @@ CORPUS_DIR = "data/"
 COORDINATES_DIR = CORPUS_DIR + "page/"
 TRANSPARENT_BACKGROUND = 255
 COVERED_BACKGROUND = 128
-DECEASED_NAME_DEFAULT_X_POS = 768
+DECEASED_NAME_DEFAULT_X_POS = 808
 DECEASED_NAME_DEFAULT_Y_POS = 610
 DECEASED_NAME_DEFAULT_Y_LINE = 745
 DECEASED_NAME_DEFAULT_X_POS_1831 = 688
 DECEASED_NAME_DEFAULT_Y_POS_1831 = 471
 DECEASED_NAME_DEFAULT_Y_LINE_1831 = 510
 MINIMUM_TEXT_AREA = 6000 # about 80% of smallest text field found
-
+LOGFILE = "etc/logfile"
 
 def polygon2rectangle(coordinates):
     x_min, x_max, y_min, y_max = (1000000, 0, 1000000, 0)
@@ -66,10 +66,10 @@ def encloses_point(rectangle, point):
            rectangle[1] <= point[1] and rectangle[3] >= point[1])
 
 
-def find_top_left(polygon):
+def find_top_left(polygon_line):
     top_coordinate = 1000000
     left_coordinate = 1000000
-    for pair in polygon[0]:
+    for pair in polygon_line[0]["points"]:
         if pair[1] < top_coordinate:
             top_coordinate = pair[1]
         if pair[0] < left_coordinate:
@@ -79,9 +79,9 @@ def find_top_left(polygon):
 
 def sort_polygons(polygons):
     extended_polygons = []
-    for polygon in polygons:
-        top_coordinate, left_coordinate = find_top_left(polygon)
-        extended_polygons.append([top_coordinate, left_coordinate, polygon])
+    for polygon_line in polygons:
+        top_coordinate, left_coordinate = find_top_left(polygon_line)
+        extended_polygons.append([top_coordinate, left_coordinate, polygon_line])
     return [ extended_polygon[2] for extended_polygon in sorted(extended_polygons, key=lambda ep: (ep[0], ep[1])) ]
 
 
@@ -93,9 +93,8 @@ def get_text_polygons(coordinates_file_name):
         for text_line in text_region.findall("./{*}TextLine"):
             text_region_polygons.append([])
             for coords in text_line.findall("./{*}Coords"):
-                text_region_polygons[-1].append(get_coordinates_from_line(coords.attrib["points"]))
-        if len(text_region_polygons) > len(polygons):
-            polygons = sort_polygons(text_region_polygons)
+                text_region_polygons[-1].append({"points": get_coordinates_from_line(coords.attrib["points"]), "name": text_line.attrib["id"]})
+        polygons.extend(sort_polygons(text_region_polygons))
     return polygons
 
 
@@ -103,7 +102,7 @@ def get_best_polygon_for_y(polygons, best_y):
     best_distance, best_text_line_id, best_coords_id = (sys.maxsize, -1, -1)
     for text_line_id in range(0, len(polygons)):
         for coords_id in range(0, len(polygons[text_line_id])):
-            rectangle = polygon2rectangle(polygons[text_line_id][coords_id])
+            rectangle = polygon2rectangle(polygons[text_line_id][coords_id]["points"])
             distance = abs(best_y - rectangle[1])
             if distance < best_distance and compute_rectangle_area(rectangle) >= MINIMUM_TEXT_AREA:
                 best_distance = distance
@@ -115,7 +114,7 @@ def get_best_polygon_for_y(polygons, best_y):
 def get_text_position(polygons, best_position, best_y):
     for text_line_id in range(0, len(polygons)):
         for coords_id in range(0, len(polygons[text_line_id])):
-            rectangle = polygon2rectangle(polygons[text_line_id][coords_id])
+            rectangle = polygon2rectangle(polygons[text_line_id][coords_id]["points"])
             if encloses_point(rectangle, best_position) and compute_rectangle_area(rectangle) >= MINIMUM_TEXT_AREA:
                 return text_line_id, coords_id
     return get_best_polygon_for_y(polygons, best_y)
@@ -137,7 +136,7 @@ def move_ids(polygons, text_line_id, coords_id, count):
         increment = 1
     else:
         sys.exit("move_ids: cannot happen")
-    rectangle = polygon2rectangle(polygons[text_line_id][coords_id])
+    rectangle = polygon2rectangle(polygons[text_line_id][coords_id]["points"])
     if compute_rectangle_area(rectangle) >= MINIMUM_TEXT_AREA:
         return move_ids(polygons, text_line_id, coords_id, count + increment)
     else: # potential infinite loop
@@ -145,7 +144,7 @@ def move_ids(polygons, text_line_id, coords_id, count):
 
 
 def get_previous_ids(polygons, text_line_id, coords_id):
-    if text_line_id == 0 and coords_id == 0:
+    if text_line_id <= 0 and coords_id <= 0:
         return len(polygons) - 1, len(polygons[-1]) - 1
     if coords_id <= 0:
         return text_line_id - 1, len(polygons[text_line_id - 1]) - 1
@@ -163,7 +162,7 @@ def get_next_ids(polygons, text_line_id, coords_id):
 
 
 def read_processed_files():
-    return pd.read_csv("etc/logfile")
+    return pd.read_csv(LOGFILE)
 
 
 def select_next_file():
@@ -176,7 +175,7 @@ def select_next_file():
         coordinates_file_name = unprocessed_files[random.randint(0, len(unprocessed_files) - 1)]
         deceased_name = get_deceased_name(coordinates_file_name)
         if regex.search("(unknown|levenloos|levensloos)", deceased_name, regex.IGNORECASE) or len(get_text_polygons(os.path.join(COORDINATES_DIR, coordinates_file_name))) == 0:
-            update_logfile(os.path.basename(coordinates_file_name), "skip", 0, 0, deceased_name, "0.0.0.0")
+            update_logfile(os.path.basename(coordinates_file_name), "skip", 0, 0, deceased_name, "0.0.0.0", "NA")
         else:
             break
     return os.path.join(COORDINATES_DIR, coordinates_file_name)
@@ -245,12 +244,12 @@ def get_deceased_name(coordinates_file_name):
 
 def remove_last_entry():
     lines = []
-    logfile = open("etc/logfile", "r")
+    logfile = open(LOGFILE, "r")
     for line in logfile:
         lines.append(line.strip())
     logfile.close()
     lines.pop(-1)
-    logfile = open("etc/logfile", "w")
+    logfile = open(LOGFILE, "w")
     for line in lines:
         print(line, file=logfile)
     logfile.close()
@@ -265,9 +264,9 @@ def resize_polygon(polygon, factor):
     return [ tuple([int(value/factor) for value in coordinates]) for coordinates in polygon ]
 
 
-def update_logfile(file_name, action, text_line_id, coords_id, deceased_name, ip_addr):
-    logfile = open("etc/logfile", "a")
-    print(f"{file_name},{action},{text_line_id},{coords_id},\"{deceased_name}\",{ip_addr},{datetime.date.today()}", file=logfile)
+def update_logfile(file_name, action, text_line_id, coords_id, deceased_name, ip_addr, text_line_name):
+    logfile = open(LOGFILE, "a")
+    print(f"{file_name},{action},{text_line_id},{coords_id},\"{deceased_name}\",{ip_addr},{datetime.date.today()},{text_line_name}", file=logfile)
     logfile.close()
 
 
@@ -282,7 +281,7 @@ def determine_file_names(request, ip_addr):
         coordinates_file_name = os.path.join(COORDINATES_DIR, request.form["file_name"])
         previous_file_name = request.form["previous_file_name"]
     elif "annotate" in request.form:
-        update_logfile(request.form["file_name"], request.form["annotate"], request.form["text_line_id"], request.form["coords_id"], request.form["deceased_name"], ip_addr)
+        update_logfile(request.form["file_name"], request.form["annotate"], request.form["text_line_id"], request.form["coords_id"], request.form["deceased_name"], ip_addr, request.form["text_line_name"])
         coordinates_file_name = select_next_file()
         previous_file_name = request.form["file_name"]
     elif request.args.get("file_name") != None:
@@ -334,7 +333,7 @@ def annotate():
     deceased_name = get_deceased_name(coordinates_file_name)
     polygons = get_text_polygons(coordinates_file_name)
     text_line_id, coords_id = determine_polygon(polygons, request, image_file_name)
-    prepare_image(image_file_name, polygons[text_line_id][coords_id], ip_addr)
+    prepare_image(image_file_name, polygons[text_line_id][coords_id]["points"], ip_addr)
     return render_template("index.html",
                            text_line_id=text_line_id,
                            coords_id=coords_id,
@@ -343,7 +342,8 @@ def annotate():
                            deceased_name=deceased_name,
                            ip_addr=ip_addr,
                            nbr_of_processed_files=len(read_processed_files()),
-                           nbr_of_files=len(os.listdir(COORDINATES_DIR)))
+                           nbr_of_files=len(os.listdir(COORDINATES_DIR)),
+                           text_line_name=polygons[text_line_id][coords_id]["name"])
 
 
 @app.route("/stats", methods=['GET', 'POST'])
