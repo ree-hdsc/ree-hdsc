@@ -18,7 +18,7 @@
   <p>
    Number of saved files: {{nbr_of_saved}} ({{(0.5 + 100 * nbr_of_saved/(nbr_of_saved + nbr_of_skipped))|int}}%)
    <br>Number of skipped files: {{nbr_of_skipped}} ({{(0.5 + 100 * nbr_of_skipped/(nbr_of_saved + nbr_of_skipped))|int}}%)
-   <br>Total processed files: {{nbr_of_saved+nbr_of_skipped}}/{{total_files}} ({{(0.5 + 100 * (nbr_of_saved+nbr_of_skipped) / total_files)|int}}%)
+   <br>Total processed files: {{nbr_of_saved+nbr_of_skipped}}/{{total_files}} ({{(100 * (nbr_of_saved+nbr_of_skipped) / total_files)|int}}%)
   </p>
   <h3>Per year</h3>
 

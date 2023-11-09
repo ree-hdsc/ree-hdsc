@@ -17,7 +17,7 @@ CORPUS_DIR = "data/"
 COORDINATES_DIR = CORPUS_DIR + "page/"
 TRANSPARENT_BACKGROUND = 255
 COVERED_BACKGROUND = 128
-DECEASED_NAME_DEFAULT_X_POS = 808
+DECEASED_NAME_DEFAULT_X_POS = 768
 DECEASED_NAME_DEFAULT_Y_POS = 610
 DECEASED_NAME_DEFAULT_Y_LINE = 745
 DECEASED_NAME_DEFAULT_X_POS_1831 = 688
@@ -163,6 +163,10 @@ def get_next_ids(polygons, text_line_id, coords_id):
 
 def read_processed_files():
     return pd.read_csv(LOGFILE)
+
+
+def len_processed_files(processed_files):
+    return len(set(processed_files.iloc[:,0]))
 
 
 def select_next_file():
@@ -341,7 +345,7 @@ def annotate():
                            previous_file_name=previous_file_name,
                            deceased_name=deceased_name,
                            ip_addr=ip_addr,
-                           nbr_of_processed_files=len(read_processed_files()),
+                           nbr_of_processed_files=len_processed_files(read_processed_files()),
                            nbr_of_files=len(os.listdir(COORDINATES_DIR)),
                            text_line_name=polygons[text_line_id][coords_id]["name"])
 
@@ -362,6 +366,10 @@ def stats():
         year = int(file_name.split()[1])
         if file_name in file_names:
             labels[year][file_names[file_name]] -= 1
+            if file_names[file_name] == "save":
+                nbr_of_saved -= 1
+            elif file_names[file_name] == "skip":
+                nbr_of_skipped -= 1
         if year not in labels:
             labels[year] = {}
         if label not in labels[year]:
