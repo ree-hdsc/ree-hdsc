@@ -153,7 +153,7 @@ PRINTED_TEXT[1873] = [
     "jaren",
     "van",
     "zijnde geboren",
-    "En is hiervan akte opgemaakt, welke na voorlezing door de",
+    "En is hiervan acte opgemaakt, welke na voorlezing door de",
     "en mij ambtenaar voormeld",
     "is onderteekend",
     "op Curaçao dato utsupra",
