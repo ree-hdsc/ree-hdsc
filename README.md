@@ -1,8 +1,7 @@
 [![GitHub URL](https://img.shields.io/badge/github-repo-000.svg?logo=github&labelColor=gray&color=blue)](https://github.com/ree-hdsc/ree-hdsc)
 [![GitHub](https://img.shields.io/github/last-commit/ree-hdsc/ree-hdsc)](https://github.com/ree-hdsc/ree-hdsc)
 [![License](https://img.shields.io/github/license/ree-hdsc/ree-hdsc)](https://github.com/ree-hdsc/ree-hdsc)
-[![Research Software Directory](https://img.shields.io/badge/rsd-xenon-00a3e3.svg?labelColor=gray&color=00a3e3)](https://research-software.nl/ree-hdsc/ree-hdsc)
-| [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1154130.svg)](https://doi.org/10.5281/zenodo.1154130)
+![fair software](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8B-yellow)
 
 # REE-HDSC
 
