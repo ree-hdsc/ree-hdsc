@@ -1,0 +1,26 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: REE-HDSC
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Erik
+    family-names: Tjong Kim Sang
+    email: e.tjongkimsang@esciencecenter.nl
+    affiliation: Netherlands eScience Center
+    orcid: 'https://orcid.org/0000-0002-8431-081X'
+repository-code: 'https://github.com/ree-hdsc/ree-hdsc'
+url: 'https://research-software-directory.org/projects/ree-hdsc'
+abstract: >-
+  Software developed in the project REE-HDSC (Recognizing
+  Extracted Entities for the Historical Database Suriname
+  Curacao) of the Radboud University Nijmegen and the
+  Netherlands eScience Center. 
+keywords:
+  - hand-written text recognition
+  - named entity recognition
+license: Apache-2.0
