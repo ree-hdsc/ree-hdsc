@@ -131,23 +131,27 @@ def get_extreme_points_coords(coords):
 
 
 def get_textregions_from_xml(root):
+    text = []
+    metadata = []
     textregions = []
     for textregion in root.findall(".//{*}TextRegion"):
+        text_textregion, metadata_textregion = get_text_from_xml(textregion)
+        text.append(text_textregion)
+        metadata.append(metadata_textregion)
         for coords in textregion.findall("./{*}Coords"):
             textregions.append(get_extreme_points_coords(coords.attrib["points"]))
-    return textregions
+    return text, metadata, textregions
 
 
 def get_text_from_file(file_name):
     tree = ET.parse(file_name)
     root = tree.getroot()
-    text, metadata = get_text_from_xml(root)
-    textregions = get_textregions_from_xml(root)
+    text, metadata, textregions = get_textregions_from_xml(root)
     return text, metadata, textregions
 
 
-def print_with_color(string, color_code=1):
-    print(f"\x1b[3{color_code}m{string}\x1b[m", end="")
+def print_with_color(string, color_code=1, end=""):
+    print(f"\x1b[3{color_code}m{string}\x1b[m", end=end)
 
 
 def make_file_id(file_name):

@@ -12,5 +12,7 @@ Software developed in the project [REE-HDSC](https://research-software-directory
 - [Notebooks](https://github.com/ree-hdsc/ree-hdsc/tree/master/notebooks)
 - [Scripts](https://github.com/ree-hdsc/ree-hdsc/tree/master/scripts)
 
-The software purpose is described in the Software section of the [project report](https://arxiv.org/abs/2401.02972).
+The software purpose is described in the Software section of the project report:
+
+- Erik Tjong Kim Sang, [REE-HDSC: Recognizing Extracted Entities for the Historical Database Suriname Curacao](https://arxiv.org/abs/2401.02972). Technical Report, Netherlands eScience Center, doi: arXiv:2401.02972, 2023
 

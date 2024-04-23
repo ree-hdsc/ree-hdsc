@@ -8,6 +8,7 @@ import read_transkribus_files
 import regex
 import printed_text
 import spacy
+import sys
 import utils
 
 
@@ -56,11 +57,11 @@ def expand_entities(entities, text):
     for entity in entities:
         if entity["label"] == "PERSON":
             previous_token, previous_start = get_previous_token(text, entity["start"])
-            while regex.search("^[A-Z]", previous_token) and previous_token not in SKIP_TOKENS:
+            while len(previous_token) > 0 and previous_token[0].isupper() and previous_token not in SKIP_TOKENS:
                 entity["start"] = previous_start
                 previous_token, previous_start = get_previous_token(text, entity["start"])
             next_token, next_end = get_next_token(text, entity["end"])
-            while regex.search("^[A-Z]", next_token) and next_token not in SKIP_TOKENS:
+            while len(next_token) > 0  and next_token[0].isupper() and next_token not in SKIP_TOKENS:
                 entity["end"] = next_end
                 next_token, next_end = get_next_token(text, entity["end"])
     return entities
@@ -77,11 +78,11 @@ def shrink_entities(entities, text):
     for entity in entities:
         if entity["label"] == "PERSON":
             final_token, next_end = get_previous_token(text, entity["end"])
-            while regex.search("^[a-z]", final_token) or final_token in SKIP_TOKENS or regex.search("[0-9]", final_token):
+            while len(final_token) > 0 and (final_token[0].islower() or final_token in SKIP_TOKENS or final_token[0].isdigit()):
                 entity["end"] = next_end
                 final_token, next_end = get_previous_token(text, entity["end"])
             first_token, next_start = get_next_token(text, entity["start"])
-            while regex.search("^[a-z]", first_token) or first_token in SKIP_TOKENS or regex.search("[0-9]", first_token):
+            while len(first_token) > 0 and (first_token[0].islower() or first_token in SKIP_TOKENS or first_token[0].isdigit()):
                 entity["start"] = next_start
                 first_token, next_start = get_next_token(text, entity["start"])
     return entities
@@ -114,17 +115,20 @@ text_id = "p001.xml"
 text = texts_htr[text_id]
 analysis = nlp(text)
 entities = get_spacy_entities(nlp(text))
-entities = expand_entities(entities, text)
+entities = shrink_entities(expand_entities(entities, text), text)
 
 last_start = len(text) + 1
 for entity_id in range(len(entities) - 1, -1, -1):
     start = entities[entity_id]["start"]
     if start >= last_start:
-        sys.exit(f"entities out of order: cannot happen: {entities}")
+        sys.exit(f"entities out of order: cannot happen: {start} {last_start} {entities}")
     end = entities[entity_id]["end"]
+    if end > last_start:
+        end = last_start
     label = entities[entity_id]["label"]
-    text = text[:end] + "</font>" + text[end:]
+    text = text[:end] + f'</font><sub><font style="color: lightgrey">{label}</font></sub>' + text[end:]
     text = text[:start] + f'<font style="background-color: {LABEL_COLORS[label]}">'+ text[start:]
+    last_start = start
 text = regex.sub("\n", "<br>", text)
 file_id = open(regex.sub("xml", "html", text_id), "w")
 print(f"<html><body>{text}</body></html>", file=file_id)
