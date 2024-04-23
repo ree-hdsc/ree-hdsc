@@ -4,6 +4,7 @@
 ![fair software](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F-green)
 [![Research Software Directory](https://img.shields.io/badge/rsd-reehdsc-00a3e3.svg)](https://research-software-directory.org/software/ree-hdsc)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/8766/badge)](https://www.bestpractices.dev/projects/8766)
+[![DOI](https://zenodo.org/badge/617097581.svg)](https://zenodo.org/doi/10.5281/zenodo.11046339)
 
 # REE-HDSC
 
